@@ -7,21 +7,21 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, // No "NEXT_PUBLIC_" so it's server-only
 });
 
+const openAiModel = 'gpt-3.5-turbo';
+
 export async function POST(request) {
-    console.log("request!: ", request);
   try {
     const { question } = await request.json();
-    console.log('question!: ', JSON.stringify(question));
+    console.log('Question for openAI: ', JSON.stringify(question));
 
-    // Use the new 'chat.completions.create(...)' method
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: openAiModel,
       messages: [{ role: 'user', content: question }],
     });
 
     const answer = completion.choices[0].message.content;
+    console.log(`Response from ${openAiModel}`, JSON.stringify(answer));
 
-    // Optionally store in Firestore
     await addDoc(collection(db, 'questions'), {
       question,
       answer,
