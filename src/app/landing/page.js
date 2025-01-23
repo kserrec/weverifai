@@ -35,7 +35,7 @@ export default function Landing() {
 
           <a href="#" className={styles.navItem}>Forum</a>
           <a href="#" className={styles.navItem}>Support</a>
-          <button className={styles.signupBtn}>Sign Up</button>
+          <button className={styles.navItem}>Sign Up</button>
         </nav>
       </header>
 

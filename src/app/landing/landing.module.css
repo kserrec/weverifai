@@ -31,7 +31,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: #ffffff;
   padding: 15px 40px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   position: fixed;
@@ -159,16 +159,16 @@ input:checked + .slider::before {
 .loginBox {
   margin: 30px 0;
   padding: 25px;
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
   width: 350px;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .container.dark .loginBox {
   background: #222;
-  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 10px #ffffff1a;
 }
 
 .loginForm {
