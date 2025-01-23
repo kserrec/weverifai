@@ -22,7 +22,19 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <header>
+          <nav>
+            {/* Your navigation links here */}
+            <a href="/">Home</a> | <a href="/landing">Landing</a>
+          </nav>
+        </header>
+
+        <main>{children}</main> {/* This is where your page content will be rendered */}
+
+        <footer>
+          {/* Footer content here */}
+          <p>&copy; 2025 WeVerifAI. All rights reserved.</p>
+        </footer>
       </body>
     </html>
   );
