@@ -1,232 +1,3 @@
-/* GENERAL STYLES
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    min-height: 100vh;
-    background: #f9f9f9;
-    color: #333;
-    font-family: "Inter", sans-serif;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-  
-  .container.dark {
-    background: #181818;
-    color: #eee;
-  }
-  
-  .accent {
-    color: #f36100;
-  }
-  
-  .accent2 {
-    color: #0475f7;
-  }
-  
-
-  .header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ffffff;
-    padding: 15px 40px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    position: fixed;
-    top: 0;
-    z-index: 100;
-    transition: background 0.3s ease;
-  }
-  
-  .container.dark .header {
-    background: #222;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
-  }
-  
-  .logo {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #000000;
-  }
-  
-  .container.dark .logo {
-    color: #eee;
-  }
-  
-  
-  .navbar {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-  }
-  
-  .navItem {
-    color: #555;
-    text-decoration: none;
-    font-size: 1rem;
-    transition: 0.3s;
-  }
-  
-  .container.dark .navItem {
-    color: #bbb;
-  }
-  
-  .navItem:hover {
-    color: #007bff;
-  }
-  
-  .container.dark .navItem:hover {
-    color: #3ea6ff;
-  }
-  
- 
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 22px;
-    margin-right: 15px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #007bff;
-    transition: 0.3s;
-    border-radius: 22px;
-  }
-  
-  .slider::before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-  }
-  
-  input:checked + .slider {
-    background-color: #f36100;
-  }
-  
-  input:checked + .slider::before {
-    transform: translateX(18px);
-  }
-  
-  
-  .mainContent {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 120px; /* Space for fixed header */
-    /* padding: 20px;
-    width: 100%; */
-  /* }
-  
-  .leftColumn {
-    width: 250px;
-    background: #ffffff;
-    box-shadow: 0 10px 15px #0000001a;
-    padding: 15px;
-  }
-
-  .container.dark .leftColumn {
-    background: #222;
-    box-shadow: 0 4px 10px #ffffff1a;
-  }
-  
-  .categoriesTitle {
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-  
-  .categoriesList {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .categoriesList li {
-    margin: 10px 0;
-  }
-  
-  .categoriesList a {
-    text-decoration: none;
-    color: #007bff;
-    transition: color 0.3s;
-  }
-  
-  .categoriesList a:hover {
-    color: #f36100;
-  }
-  
-  
-  .rightColumn {
-    flex: 1;
-    padding-left: 12px;
-  }
-  
-  .queryCard {
-    background: #ffffff;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    box-shadow: 0 10px 15px #0000001a;
-  }
-
-  .container.dark .queryCard {
-    background: #222;
-    box-shadow: 0 4px 10px #ffffff1a ;
-  }
-  
-  .queryTitle {
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-  
-  .queryAnswer {
-    font-size: 1rem;
-    color: #555;
-    margin-top: 10px;
-  }
-  
-  .queryStats {
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: #888;
-  }
-  
-  
-  .footer {
-    margin-top: auto;
-    padding: 20px;
-    background: white;
-    color: #666;
-    font-size: 0.9rem;
-    width: 100%;
-    text-align: center;
-    transition: background 0.3s ease;
-  }
-  
-  .container.dark .footer {
-    background: #222;
-    color: #bbb;
-  } */
-
-/* GENERAL STYLES */
-/* GENERAL STYLES */
 .container {
     display: flex;
     flex-direction: column;
@@ -253,7 +24,7 @@
     color: #eee;
   }
   
-  /* HEADER */
+
   .header {
     width: 100%;
     display: flex;
@@ -274,7 +45,7 @@
     box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
   }
   
-  /* LOGO */
+  
   .logo {
     position: absolute;
     left: 50%;
@@ -290,14 +61,14 @@
     color: #eee;
   }
   
-  /* TOGGLE WRAPPER */
+  
   .toggleWrapper {
     display: flex;
     align-items: center;
     gap: 5px;
   }
   
-  /* DARK MODE SLIDER */
+  
   .switch {
     position: relative;
     display: inline-block;
@@ -379,7 +150,7 @@
     color: #3ea6ff;
   }
   
-  /* CATEGORY SIDEBAR */
+  
   .sidebar {
     position: fixed;
     left: -250px;
@@ -400,7 +171,7 @@
     left: 0;
   }
   
-  /* CLOSE BUTTON */
+  
   .closeButton {
     background: none;
     border: none;
@@ -416,7 +187,7 @@
     color: #bbb;
   }
   
-  /* FORUM SECTION */
+  
   .forum {
     margin-top: 100px;
     text-align: center;
@@ -429,7 +200,7 @@
     font-weight: 700;
   }
   
-  /* FORUM POSTS */
+  
   .posts {
     display: flex;
     flex-direction: column;
@@ -454,7 +225,7 @@
     transform: translateY(-3px);
   }
   
-  /* POST HEADER */
+  
   .postHeader {
     display: flex;
     align-items: center;
@@ -484,7 +255,7 @@
     color: #bbb;
   }
   
-  /* POST CONTENT */
+  
   .postContent {
     margin-top: 10px;
     font-size: 1rem;
@@ -495,7 +266,7 @@
     color: #ddd;
   }
   
-  /* POST FOOTER */
+  
   .postFooter {
     display: flex;
     align-items: center;
@@ -516,7 +287,7 @@
     font-size: 0.9rem;
   }
   
-  /* FOOTER */
+  
   .footer {
     padding: 20px;
     background: white;
