@@ -4,7 +4,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { NextResponse } from 'next/server';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // No "NEXT_PUBLIC_" so it's server-only
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openAiModel = 'gpt-3.5-turbo';
