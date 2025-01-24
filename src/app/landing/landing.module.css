@@ -235,3 +235,4 @@ input:checked + .slider::before {
   background: #222;
   color: #bbb;
 }
+
