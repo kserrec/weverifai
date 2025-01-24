@@ -31,7 +31,11 @@ export default function Home(): JSX.Element {
     }));
   };
 
-  const posts = generateMockPosts();
+  const [posts, setPosts] = useState<Post[]>([]);
+
+useEffect(() => {
+  setPosts(generateMockPosts()); // ✅ Runs only on the client
+}, []);
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
