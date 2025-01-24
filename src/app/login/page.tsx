@@ -41,7 +41,7 @@ export default function Landing(): JSX.Element {
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
       <header className={styles.header}>
         {/* Wrap the logo with an anchor tag for routing */}
-        <a href="http://localhost:3000/home" className={styles.logo}>
+        <a href="/" className={styles.logo}>
           <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
         </a>
         <nav className={styles.navbar}>
