@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, JSX } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaUserCircle, FaCommentAlt } from "react-icons/fa";
 
@@ -15,6 +16,7 @@ interface Post {
 export default function Home(): JSX.Element {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     document.body.classList.toggle(styles.dark, darkMode);
@@ -33,9 +35,13 @@ export default function Home(): JSX.Element {
 
   const [posts, setPosts] = useState<Post[]>([]);
 
-useEffect(() => {
-  setPosts(generateMockPosts()); // ✅ Runs only on the client
-}, []);
+  useEffect(() => {
+    setPosts(generateMockPosts());
+  }, []);
+
+  const handleSignUpClick = () => {
+    router.push("/landing");
+  };
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
@@ -79,7 +85,7 @@ useEffect(() => {
           </div>
           <a href="#" className={styles.navright}>Forum</a>
           <a href="#" className={styles.navright}>Support</a>
-          <button className={styles.signupBtn}>Sign Up</button>
+          <button className={styles.signupBtn} onClick={handleSignUpClick}>Sign Up</button>
         </div>
       </header>
 
