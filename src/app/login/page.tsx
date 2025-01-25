@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import type { FormEvent, JSX } from "react";
 import styles from "./landing.module.css";
 import Link from "next/link";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 interface FormElements extends HTMLFormControlsCollection {
   email: HTMLInputElement;
@@ -16,16 +17,14 @@ interface LoginFormElement extends HTMLFormElement {
 }
 
 export default function Landing(): JSX.Element {
-  // State for dark mode
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
-  // Load user preference from localStorage
   useEffect(() => {
     const storedMode = localStorage.getItem("darkMode") === "true";
     setDarkMode(storedMode);
   }, []);
 
-  // Toggle function
   const toggleDarkMode = (): void => {
     setDarkMode((prevMode: boolean) => {
       localStorage.setItem("darkMode", (!prevMode).toString());
@@ -33,7 +32,6 @@ export default function Landing(): JSX.Element {
     });
   };
 
-  // Handle form submission
   const handleSubmit = (e: FormEvent<LoginFormElement>): void => {
     e.preventDefault();
     // Add your login logic here
@@ -58,7 +56,23 @@ export default function Landing(): JSX.Element {
           <Link href="#" className={styles.navItem}>Forum</Link>
           <Link href="#" className={styles.navItem}>Support</Link>
           <button className={styles.navItem}>Sign Up</button>
+          
+          <button 
+            className={styles.mobileMenuBtn}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {dropdownOpen ? <FaTimes /> : <FaBars />}
+          </button>
         </nav>
+
+        {dropdownOpen && (
+          <div className={styles.dropdownMenu}>
+            <Link href="#" className={styles.dropdownItem}>Forum</Link>
+            <Link href="#" className={styles.dropdownItem}>Support</Link>
+            <button className={styles.dropdownItem}>Sign Up</button>
+          </div>
+        )}
       </header>
 
       <section className={styles.hero}>
@@ -90,14 +104,7 @@ export default function Landing(): JSX.Element {
           />
           <button type="submit" className={styles.loginButton}>Log In</button>
         </form>
-        <p className={styles.registerText}>
-          New here? <Link href="#">Create an account</Link>
-        </p>
       </div>
-
-      <footer className={styles.footer}>
-        <p>&copy; 2024 WeVerifAI. All rights reserved.</p>
-      </footer>
     </div>
   );
 }
