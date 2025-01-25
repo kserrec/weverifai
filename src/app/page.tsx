@@ -1,6 +1,8 @@
 "use client";
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect } from "react";
+import type { JSX } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaUserCircle, FaCommentAlt, FaPlus } from "react-icons/fa";
 
@@ -53,6 +55,7 @@ export default function Home(): JSX.Element {
         <button 
           className={styles.menuButton} 
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
         >
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -62,13 +65,14 @@ export default function Home(): JSX.Element {
             <button 
               className={styles.closeButton} 
               onClick={() => setMenuOpen(false)}
+              aria-label="Close menu"
             >
               <FaTimes />
             </button>
-            <a href="#" className={styles.navItem}>General Discussion</a><br />
-            <a href="#" className={styles.navItem}>Announcements</a><br />
-            <a href="#" className={styles.navItem}>Support</a><br />
-            <a href="#" className={styles.navItem}>Off-Topic</a><br />
+            <Link href="#" className={styles.navItem}>General Discussion</Link>
+            <Link href="#" className={styles.navItem}>Announcements</Link>
+            <Link href="#" className={styles.navItem}>Support</Link>
+            <Link href="#" className={styles.navItem}>Off-Topic</Link>
           </nav>
         </div>
 
@@ -83,6 +87,7 @@ export default function Home(): JSX.Element {
                 type="checkbox" 
                 checked={darkMode} 
                 onChange={() => setDarkMode(!darkMode)} 
+                aria-label="Toggle dark mode"
               />
               <span className={styles.slider}></span>
             </label>
@@ -90,10 +95,9 @@ export default function Home(): JSX.Element {
           <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
             <FaPlus /> UVerifAI
           </button>
-          <a href="#" className={styles.navright}>Forum</a>
-          <a href="#" className={styles.navright}>Support</a>
+          <Link href="#" className={styles.navright}>Forum</Link>
+          <Link href="#" className={styles.navright}>Support</Link>
           <button className={styles.signupBtn} onClick={handleSignUpClick}>Sign Up</button>
-          
         </div>
       </header>
 
@@ -122,4 +126,4 @@ export default function Home(): JSX.Element {
       <footer className={styles.footer}>© 2025 ForumName. All rights reserved.</footer>
     </div>
   );
-}
+};

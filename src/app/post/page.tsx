@@ -1,8 +1,10 @@
 "use client";
-import React, { useState, useEffect, FormEvent } from 'react';
+import type { FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
 import { FaBars, FaTimes } from "react-icons/fa";
+import Link from 'next/link';
 
 const CreatePostPage: React.FC = () => {
     const [content, setContent] = useState('');
@@ -48,16 +50,15 @@ const CreatePostPage: React.FC = () => {
                         >
                             <FaTimes />
                         </button>
-                        <a href="#" className={styles.navItem}>General Discussion</a><br />
-                        <a href="#" className={styles.navItem}>Announcements</a><br />
-                        <a href="#" className={styles.navItem}>Support</a><br />
-                        <a href="#" className={styles.navItem}>Off-Topic</a><br />
+                        <Link href="#" className={styles.navItem}>General Discussion</Link><br />
+                        <Link href="#" className={styles.navItem}>Announcements</Link><br />
+                        <Link href="#" className={styles.navItem}>Support</Link><br />
+                        <Link href="#" className={styles.navItem}>Off-Topic</Link><br />
                     </nav>
                 </div>
-
-                <a href="/" className={styles.logo}>
+                <Link href="/" className={styles.logo}>
                     <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
-                </a>
+                </Link>
                 <nav className={styles.navright}>
                     <label className={styles.switch}>
                         <input 
@@ -67,8 +68,8 @@ const CreatePostPage: React.FC = () => {
                         />
                         <span className={styles.slider}></span>
                     </label>
-                    <a href="#" className={styles.navItem}>Forum</a>
-                    <a href="#" className={styles.navItem}>Support</a>
+                    <Link href="#" className={styles.navItem}>Forum</Link>
+                    <Link href="#" className={styles.navItem}>Support</Link>
                     <button className={styles.navItem} onClick={handleSignUpClick}>Sign Up</button>
                 </nav>
             </header>
