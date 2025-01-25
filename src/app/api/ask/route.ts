@@ -8,29 +8,38 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-const openAiModel = 'gpt-3.5-turbo';
+const model = 'gpt-3.5-turbo';
 
 interface RequestBody {
     question: string;
-}
+    caller: string;
+};
+
+const defaultVotes = {
+    upvotes: 0,
+    downvotes: 0,
+};
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
-        const { question }: RequestBody = await request.json();
+        const { question, caller }: RequestBody = await request.json();
         console.log('Question for openAI: ', JSON.stringify(question));
 
         const completion = await openai.chat.completions.create({
-            model: openAiModel,
+            model,
             messages: [{ role: 'user', content: question }],
         });
 
         const answer = completion.choices[0].message.content;
-        console.log(`Response from ${openAiModel}`, JSON.stringify(answer));
+        console.log(`Response from ${model}`, JSON.stringify(answer));
 
         await addDoc(collection(db, 'questions'), {
-            question,
             answer,
+            caller,
             createdAt: Date.now(),
+            question,
+            model,
+            ...defaultVotes,
         });
 
         return NextResponse.json({ answer });
