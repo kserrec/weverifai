@@ -236,3 +236,127 @@ input:checked + .slider::before {
   color: #bbb;
 }
 
+/* Add these new styles after existing ones */
+
+.mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #555;
+}
+
+.dark .mobileMenuBtn {
+  color: #bbb;
+}
+
+.dropdownMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  min-width: 200px;
+  z-index: 101;
+}
+
+.dark .dropdownMenu {
+  background: #222;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  color: #555;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: 0.3s;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dark .dropdownItem {
+  color: #bbb;
+}
+
+.dropdownItem:hover {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+}
+
+.dark .dropdownItem:hover {
+  background: rgba(62, 166, 255, 0.1);
+  color: #3ea6ff;
+}
+
+@media (max-width: 1150px) {
+  .navbar > .navItem {
+    display: none;
+  }
+
+  .mobileMenuBtn {
+    display: block;
+  }
+
+  .dropdownMenu {
+    display: block;
+  }
+}
+
+@media (max-width: 680px) {
+  .header {
+    padding: 15px 10px;
+  }
+
+  .logo {
+    font-size: 1.6rem;
+  }
+
+  .loginBox {
+    width: 90%;
+    max-width: 350px;
+    margin: 20px auto;
+  }
+
+  .hero {
+    padding: 0 20px;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 15px 5px;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .loginBox {
+    padding: 20px 15px;
+  }
+}
