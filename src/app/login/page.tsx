@@ -102,7 +102,7 @@ export default function Landing(): JSX.Element {
             className={styles.inputField}
             required 
           />
-          <button type="submit" className={styles.loginBtn}>Log In</button>
+          <button type="submit" className={styles.loginButton}>Log In</button>
         </form>
       </div>
     </div>
