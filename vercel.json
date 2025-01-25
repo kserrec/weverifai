@@ -1,3 +1,6 @@
 {
-    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+    "version": 2,
+    "buildCommand": "yarn build",
+    "devCommand": "yarn dev",
+    "framework": "nextjs"
 }
