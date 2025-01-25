@@ -154,6 +154,7 @@ input:checked + .slider:before {
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   padding-top: 60px;
   transition: left 0.3s ease-in-out;
+  z-index: 1000;
 }
 
 .dark .sidebar {
@@ -415,7 +416,6 @@ input:checked + .slider:before {
   }
 }
 
-/* Add these new media queries after your existing ones */
 
 @media (max-width: 680px) {
   .header {

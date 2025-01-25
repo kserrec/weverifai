@@ -62,6 +62,7 @@ export default function Home(): JSX.Element {
         </button>
 
         <div className={`${styles.sidebar} ${menuOpen ? styles.open : ""}`}>
+          <div className={styles.sidebarOverlay} onClick={() => setMenuOpen(false)}></div>
           <nav className={styles.navbar}>
             <button 
               className={styles.closeButton} 
@@ -95,8 +96,8 @@ export default function Home(): JSX.Element {
               </label>
             </div>
             <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
-  <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
-</button>
+              <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
+            </button>
           </div>
           
           <div className={styles.navLinks}>
