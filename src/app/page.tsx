@@ -18,6 +18,7 @@ interface Post {
 export default function Home(): JSX.Element {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,10 +70,10 @@ export default function Home(): JSX.Element {
             >
               <FaTimes />
             </button>
-            <Link href="#" className={styles.navItem}>General Discussion</Link>
-            <Link href="#" className={styles.navItem}>Announcements</Link>
-            <Link href="#" className={styles.navItem}>Support</Link>
-            <Link href="#" className={styles.navItem}>Off-Topic</Link>
+            <Link href="#" className={styles.navItem}>General Discussion</Link><br></br>
+            <Link href="#" className={styles.navItem}>Announcements</Link><br></br>
+            <Link href="#" className={styles.navItem}>Support</Link><br></br>
+            <Link href="#" className={styles.navItem}>Off-Topic</Link><br></br>
           </nav>
         </div>
 
@@ -81,24 +82,45 @@ export default function Home(): JSX.Element {
         </div>
 
         <div className={styles.navright}>
-          <div className={styles.toggleWrapper}>
-            <label className={styles.switch}>
-              <input 
-                type="checkbox" 
-                checked={darkMode} 
-                onChange={() => setDarkMode(!darkMode)} 
-                aria-label="Toggle dark mode"
-              />
-              <span className={styles.slider}></span>
-            </label>
+          <div className={styles.essentialControls}>
+            <div className={styles.toggleWrapper}>
+              <label className={styles.switch}>
+                <input 
+                  type="checkbox" 
+                  checked={darkMode} 
+                  onChange={() => setDarkMode(!darkMode)} 
+                  aria-label="Toggle dark mode"
+                />
+                <span className={styles.slider}></span>
+              </label>
+            </div>
+            <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
+  <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
+</button>
           </div>
-          <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
-            <FaPlus /> UVerifAI
+          
+          <div className={styles.navLinks}>
+            <Link href="#" className={styles.navItem}>Forum</Link>
+            <Link href="#" className={styles.navItem}>Support</Link>
+            <button className={styles.signupBtn} onClick={handleSignUpClick}>Sign Up</button>
+          </div>
+
+          <button 
+            className={styles.mobileMenuBtn}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            <FaBars />
           </button>
-          <Link href="#" className={styles.navright}>Forum</Link>
-          <Link href="#" className={styles.navright}>Support</Link>
-          <button className={styles.signupBtn} onClick={handleSignUpClick}>Sign Up</button>
         </div>
+
+        {dropdownOpen && (
+          <div className={styles.dropdownMenu}>
+            <Link href="#" className={styles.dropdownItem}>Forum</Link>
+            <Link href="#" className={styles.dropdownItem}>Support</Link>
+            <button className={styles.dropdownItem} onClick={handleSignUpClick}>Sign Up</button>
+          </div>
+        )}
       </header>
 
       <section className={styles.forum}>
@@ -126,4 +148,4 @@ export default function Home(): JSX.Element {
       <footer className={styles.footer}>© 2025 ForumName. All rights reserved.</footer>
     </div>
   );
-};
+}
