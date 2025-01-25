@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
 import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -13,7 +14,7 @@ interface RequestBody {
     question: string;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
         const { question }: RequestBody = await request.json();
         console.log('Question for openAI: ', JSON.stringify(question));

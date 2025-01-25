@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect } from "react";
+import type { JSX } from "react";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaUserCircle, FaCommentAlt } from "react-icons/fa";
 
