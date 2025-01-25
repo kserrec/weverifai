@@ -1,7 +1,8 @@
 "use client";
 /** @jsxImportSource react */
 import * as React from "react";
-import { useState, useEffect, FormEvent, JSX } from "react";
+import { useState, useEffect } from "react";
+import type { FormEvent, JSX } from "react";
 import styles from "./landing.module.css";
 
 interface FormElements extends HTMLFormControlsCollection {
