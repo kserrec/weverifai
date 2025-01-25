@@ -208,7 +208,7 @@ input:checked + .slider::before {
 }
 
 .container.dark .loginButton {
-  background: #3ea6ff;
+  background: #f36100;
 }
 
 .loginButton:hover {
@@ -216,7 +216,7 @@ input:checked + .slider::before {
 }
 
 .container.dark .loginButton:hover {
-  background: #f36100;
+  background: #3ea6ff;
 }
 
 /* FOOTER */
@@ -235,3 +235,4 @@ input:checked + .slider::before {
   background: #222;
   color: #bbb;
 }
+

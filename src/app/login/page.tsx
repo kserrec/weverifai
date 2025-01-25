@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import type { FormEvent, JSX } from "react";
 import styles from "./landing.module.css";
+import Link from "next/link";
 
 interface FormElements extends HTMLFormControlsCollection {
   email: HTMLInputElement;
@@ -41,7 +42,9 @@ export default function Landing(): JSX.Element {
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
       <header className={styles.header}>
-        <div className={styles.logo}><span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span></div>
+        <Link href="/" className={styles.logo}>
+          <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
+        </Link>
         <nav className={styles.navbar}>
           <label className={styles.switch}>
             <input 
@@ -52,8 +55,8 @@ export default function Landing(): JSX.Element {
             <span className={styles.slider}></span>
           </label>
 
-          <a href="#" className={styles.navItem}>Forum</a>
-          <a href="#" className={styles.navItem}>Support</a>
+          <Link href="#" className={styles.navItem}>Forum</Link>
+          <Link href="#" className={styles.navItem}>Support</Link>
           <button className={styles.navItem}>Sign Up</button>
         </nav>
       </header>
@@ -88,7 +91,7 @@ export default function Landing(): JSX.Element {
           <button type="submit" className={styles.loginButton}>Log In</button>
         </form>
         <p className={styles.registerText}>
-          New here? <a href="#">Create an account</a>
+          New here? <Link href="#">Create an account</Link>
         </p>
       </div>
 
