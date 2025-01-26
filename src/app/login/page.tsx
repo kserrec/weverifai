@@ -6,22 +6,15 @@ import type { JSX } from "react";
 import styles from "./landing.module.css";
 import Link from "next/link";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { signUp, logIn } from "@/services/auth";
+import {logIn } from "@/services/auth";
+import SignUpModal from "@/components/signUpModal";
 
 export default function Landing(): JSX.Element {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSignUp = async () => {
-    try {
-      const user = await signUp(email, password);
-      console.log("Signed up user:", user);
-    } catch (error) {
-      console.error("Signup failed:", error);
-    }
-  };
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
 
   const handleLogIn = async () => {
     try {
@@ -42,6 +35,14 @@ export default function Landing(): JSX.Element {
       localStorage.setItem("darkMode", (!prevMode).toString());
       return !prevMode;
     });
+  };
+
+  const openSignUpModal = (): void => {
+    setIsSignUpModalOpen(true);
+  };
+
+  const closeSignUpModal = (): void => {
+    setIsSignUpModalOpen(false);
   };
 
   return (
@@ -94,28 +95,6 @@ export default function Landing(): JSX.Element {
       <div className={styles.authContainer}>
         <div className={styles.authCard}>
           <div className={styles.authSections}>
-            {/* Sign Up Section */}
-            <div className={styles.authLeft}>
-              <h3>Sign Up</h3>
-              <input
-                type="email"
-                placeholder="Email"
-                className={styles.inputField}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className={styles.inputField}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button onClick={handleSignUp} className={styles.authButton}>
-                Sign Up
-              </button>
-            </div>
-
             {/* Log In Section */}
             <div className={styles.authRight}>
               <h3>Log In</h3>
@@ -133,8 +112,17 @@ export default function Landing(): JSX.Element {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <button onClick={handleLogIn} className={styles.authButton}>
+              <button type="button" onClick={handleLogIn} className={styles.authButton}>
                 Log In
+              </button>
+
+              {/* Sign Up Modal Button */}
+              <button
+                type="button"
+                onClick={openSignUpModal}
+                className={styles.authButtonSecondary}
+              >
+                Not a user yet? Click here to sign up.
               </button>
             </div>
           </div>
@@ -147,6 +135,9 @@ export default function Landing(): JSX.Element {
           </div>
         </div>
       </div>
+      
+      {/* Sign Up Modal */}
+      <SignUpModal isOpen={isSignUpModalOpen} onClose={closeSignUpModal} />
     </div>
   );
 }

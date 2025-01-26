@@ -9,6 +9,8 @@ import {
  * Signs up a user with email and password.
  */
 export async function signUp(email: string, password: string) {
+    console.log('email: ', typeof email);
+    console.log('password: ', typeof password);
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         return userCredential.user; // Contains displayedName, uid, etc.
@@ -22,6 +24,10 @@ export async function signUp(email: string, password: string) {
  * Logs in a user with email and password.
  */
 export async function logIn(email: string, password: string) {
+    console.log('email: ', typeof email);
+    console.log('password: ', typeof password);
+    console.log('email: ', email);
+    console.log('password: ', password);
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         return userCredential.user; // Contains various user properties
