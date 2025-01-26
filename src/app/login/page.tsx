@@ -79,16 +79,16 @@ export default function Landing(): JSX.Element {
       </header>
 
       <section className={styles.hero}>
-        <p className={styles.heroSubtitle}>
-          Welcome to the most trusted <span className={styles.accent}>AI</span>-powered forum
-        </p>
-        <p className={styles.heroSubtitle}>
-          <span className={styles.accent2}>We</span> Discuss. <span className={styles.accent2}>We</span> Debate.
-        </p>
         <h1 className={styles.heroTitle}>
           <span className={styles.accent2}>We</span>Verif
           <span className={styles.accent}>AI</span>
         </h1>
+        <p className={styles.heroSubtitle}>
+          <span className={styles.accent}>AI</span> Answers - <span className={styles.accent2}>You</span> Respond
+        </p>
+        <p className={styles.heroSubtitle}>
+          Join a collaborative hub shaping a new library of knowledge.
+        </p>
       </section>
 
       <div className={styles.authContainer}>
