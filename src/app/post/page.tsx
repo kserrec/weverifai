@@ -6,12 +6,15 @@ import styles from './login.module.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 
+
 const CreatePostPage: React.FC = () => {
     const [content, setContent] = useState('');
     const [darkMode, setDarkMode] = useState(false);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [response, setResponse] = useState<string | null>(null);
 
     useEffect(() => {
         const storedMode = localStorage.getItem('darkMode') === 'true';
@@ -23,13 +26,42 @@ const CreatePostPage: React.FC = () => {
         localStorage.setItem('darkMode', (!darkMode).toString());
     };
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        console.log('Post submitted:', { content });
-    };
 
     const handleSignUpClick = () => {
         router.push('/login');
+    };
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const res = await fetch('/api/question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question: content,
+                    model: 'gpt-3.5-turbo',
+                    caller: 'anonymous',
+                }),
+            });
+
+            const data = await res.json();
+            
+            if (data.error) {
+                console.error('Error:', data.error);
+                setResponse('Error getting response');
+            } else {
+                setResponse(data.answer);
+            }
+        } catch (error) {
+            console.error('Error submitting question:', error);
+            setResponse('Error submitting question');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -110,9 +142,16 @@ const CreatePostPage: React.FC = () => {
                         onChange={(e) => setContent(e.target.value)}
                         className={styles.inputField}
                         rows={10}
-                        placeholder="Write your post here..."
+                        placeholder="Write your question here..."
                         required
                     />
+                    {loading && <p className={styles.loading}>Getting response...</p>}
+                    {response && (
+                        <div className={styles.response}>
+                            <h4>Response:</h4>
+                            <p>{response}</p>
+                        </div>
+                    )}
                     <button type="submit" className={styles.submitButton}>Submit</button>
                 </form>
             </div>

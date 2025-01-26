@@ -267,15 +267,15 @@ input:checked + .slider:before {
 }
 
 .container.dark .submitButton {
-    background: #3ea6ff;
+    background: #f36100;
 }
 
 .submitButton:hover {
-    background: #0056b3;
+    background: #f36100;
 }
 
 .container.dark .submitButton:hover {
-    background: #1e90ff;
+    background: #3ea6ff;
 }
 
 .footer {
@@ -433,4 +433,20 @@ input:checked + .slider:before {
         position: relative;
         left: 35%;
     }
+}
+
+.loading {
+    color: #007bff;
+    margin: 10px 0;
+}
+
+.response {
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(0,123,255,0.1);
+    border-radius: 8px;
+}
+
+.dark .response {
+    background: rgba(62,166,255,0.1);
 }
