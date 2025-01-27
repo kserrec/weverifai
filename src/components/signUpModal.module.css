@@ -12,13 +12,16 @@
   }
   
   .modalContent {
-    background-color: #fff;
+    background-color: #2b2b2b;
+    box-shadow: #b8b8b8 0px 0px 2px;
     padding: 2rem;
     border-radius: 8px;
     width: 90%;
     max-width: 400px;
     position: relative;
   }
+
+
   
   .closeButton {
     position: absolute;
@@ -36,28 +39,36 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 1px solid #ccc;
+    color: black; 
     border-radius: 4px;
   }
   
   .authButton {
     width: 100%;
     padding: 0.75rem;
-    background-color: #4caf50;
+    background-color: #f36100;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
+
+  .authButton:hover {
+    background-color: #3ea6ff ;
+  }
   
   .authButtonSecondary {
     width: 100%;
     padding: 0.75rem;
-    background-color: #2196f3;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     margin-top: 0.5rem;
+  }
+
+  .authButtonSecondary:hover {
+    color: #f36100
   }
   
   .authButton:disabled {

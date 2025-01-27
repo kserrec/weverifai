@@ -430,7 +430,7 @@ input:checked + .slider::before {
 }
 
 .authButton {
-  background-color: #d93025;
+  background-color: #3ea6ff;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -440,8 +440,17 @@ input:checked + .slider::before {
   transition: background-color 0.2s;
 }
 
+.container.dark .authButton {
+  background-color: #f36100;
+}
+
+
 .authButton:hover {
-  background-color: #c52b22;
+  background-color: #f36100;
+}
+
+.container.dark .authButton:hover {
+  background-color: #3ea6ff;
 }
 
 .authFooter {
@@ -450,8 +459,8 @@ input:checked + .slider::before {
 }
 
 .guestButton {
-  background-color: #f1f1f1;
-  color: #333;
+  background-color: #3ea6ff;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   padding: 0.75rem 1.5rem;
@@ -461,7 +470,7 @@ input:checked + .slider::before {
 }
 
 .guestButton:hover {
-  background-color: #e2e2e2;
+  background-color: #f36100;
 }
 
 /* Responsive layout for smaller screens */

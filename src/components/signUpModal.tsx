@@ -17,6 +17,22 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const getErrorMessage = (error: any) => {
+    const errorCode = error?.code || '';
+    switch (errorCode) {
+      case 'auth/missing-password':
+        return 'Please enter a password';
+      case 'auth/weak-password':
+        return 'Password should be at least 6 characters';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address';
+      case 'auth/email-already-in-use':
+        return 'An account with this email already exists';
+      default:
+        return error?.message || 'Sign up failed';
+    }
+  };
+
   const handleSignUp = async () => {
     setLoading(true);
     setError(null);
@@ -26,15 +42,15 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
       setSuccess(`Signed up as ${user.email}`);
       setNewEmail("");
       setNewPassword("");
-      // Optionally close the modal after successful sign-up
-      // onClose();
       router.push('/');
-    } catch (err: unknown) {
-      setError((err instanceof Error) ? err.message : "Signup Failed");
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
+
+  
 
   if (!isOpen) return null;
 

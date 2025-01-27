@@ -5,10 +5,12 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
 import styles from "./landing.module.css";
+import modalStyles from "@/components/signUpModal.module.css";
 import Link from "next/link";
 import { FaBars, FaTimes } from "react-icons/fa";
 import {logIn } from "@/services/auth";
 import SignUpModal from "@/components/signUpModal";
+
 
 export default function Landing(): JSX.Element {
   const router = useRouter();
@@ -124,7 +126,7 @@ export default function Landing(): JSX.Element {
               <button
                 type="button"
                 onClick={openSignUpModal}
-                className={styles.authButtonSecondary}
+                className={modalStyles.authButtonSecondary}
               >
                 Not a user yet? Click here to sign up.
               </button>
