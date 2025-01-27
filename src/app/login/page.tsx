@@ -22,9 +22,10 @@ export default function Landing(): JSX.Element {
     try {
       const user = await logIn(email, password);
       console.log("Logged in user:", user);
-      router.push('/post');
+      router.push('/');
     } catch (error) {
       console.error("Login failed!!! :", error);
+      
     }
   };
 

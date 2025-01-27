@@ -28,7 +28,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
       setNewPassword("");
       // Optionally close the modal after successful sign-up
       // onClose();
-      router.push('/post');
+      router.push('/');
     } catch (err: unknown) {
       setError((err instanceof Error) ? err.message : "Signup Failed");
     } finally {
