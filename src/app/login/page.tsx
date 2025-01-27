@@ -1,5 +1,6 @@
 "use client";
 /** @jsxImportSource react */
+import { useRouter } from 'next/navigation';
 import * as React from "react";
 import { useState, useEffect } from "react";
 import type { JSX } from "react";
@@ -10,6 +11,7 @@ import {logIn } from "@/services/auth";
 import SignUpModal from "@/components/signUpModal";
 
 export default function Landing(): JSX.Element {
+  const router = useRouter();
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [email, setEmail] = useState("");
@@ -20,8 +22,9 @@ export default function Landing(): JSX.Element {
     try {
       const user = await logIn(email, password);
       console.log("Logged in user:", user);
+      router.push('/post');
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login failed!!! :", error);
     }
   };
 

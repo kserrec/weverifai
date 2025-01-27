@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from 'next/navigation';
 import React, { useState } from "react";
 import { signUp } from "@/services/auth";
 import styles from "./signUpModal.module.css"; // Create and style this CSS module as needed
@@ -9,6 +10,7 @@ interface SignUpModalProps {
 }
 
 const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
+  const router = useRouter();
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -26,6 +28,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
       setNewPassword("");
       // Optionally close the modal after successful sign-up
       // onClose();
+      router.push('/post');
     } catch (err: unknown) {
       setError((err instanceof Error) ? err.message : "Signup Failed");
     } finally {
