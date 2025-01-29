@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { getRecentPosts } from "@/services/questionService";
 import type { ChangeEvent } from "react";
@@ -7,7 +6,7 @@ import type { JSX } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./home.module.css";
-import { FaBars, FaTimes, FaUserCircle, FaPlus } from "react-icons/fa";
+import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
 
 interface Post {
   id: string;
@@ -25,13 +24,11 @@ export default function Home(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  
-
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const recentPosts = await getRecentPosts();
+        const recentPosts = await getRecentPosts(6);
         console.log('Fetched posts:', recentPosts);
         setPosts(recentPosts);
       } catch (error) {
