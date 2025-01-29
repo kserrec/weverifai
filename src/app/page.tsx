@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
