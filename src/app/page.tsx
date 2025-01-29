@@ -25,6 +25,14 @@ export default function Home(): JSX.Element {
     document.body.classList.toggle(styles.dark, darkMode);
   }, [darkMode]);
 
+  useEffect(() => {
+    const storedMode = localStorage.getItem("darkMode");
+    // Only set if there's a stored preference
+    if (storedMode !== null) {
+      setDarkMode(storedMode === "true");
+    }
+  }, []);
+
   const generateMockPosts = (): Post[] => {
     return Array.from({ length: 12 }, (_, i) => ({
       id: i,
@@ -48,6 +56,12 @@ export default function Home(): JSX.Element {
 
   const handleCreatePostClick = () => {
     router.push("/post");
+  };
+
+  const toggleDarkMode = (event: ChangeEvent<HTMLInputElement>): void => {
+    const newDarkMode = event.target.checked;
+    setDarkMode(newDarkMode);
+    localStorage.setItem("darkMode", newDarkMode.toString());
   };
 
   return (
@@ -89,7 +103,7 @@ export default function Home(): JSX.Element {
                 <input 
                   type="checkbox" 
                   checked={darkMode} 
-                  onChange={() => setDarkMode(!darkMode)} 
+                  onChange={toggleDarkMode} 
                   aria-label="Toggle dark mode"
                 />
                 <span className={styles.slider}></span>
