@@ -163,7 +163,11 @@ export default function Landing(): JSX.Element {
       </div>
 
       {/* Sign Up Modal */}
-      <SignUpModal isOpen={isSignUpModalOpen} onClose={closeSignUpModal} darkMode={darkMode} />
-    </div>
-  );
-}
+      <SignUpModal 
+        isOpen={isSignUpModalOpen} 
+        onClose={closeSignUpModal}
+        darkMode={darkMode}
+      />
+        </div>
+    );
+  }

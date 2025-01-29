@@ -7,9 +7,10 @@ import styles from "./signUpModal.module.css"; // Create and style this CSS modu
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
+  darkMode: boolean; 
 }
 
-const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
+const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, darkMode }) => {
   const router = useRouter();
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
@@ -17,7 +18,13 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const getErrorMessage = (error: any) => {
+  type AuthError = {
+    code?: string;
+    message?: string;
+    name?: string;
+  };
+
+  const getErrorMessage = (error: AuthError) => {
     const errorCode = error?.code || '';
     switch (errorCode) {
       case 'auth/missing-password':
@@ -43,8 +50,8 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
       setNewEmail("");
       setNewPassword("");
       router.push('/');
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (err: unknown) {
+      setError(getErrorMessage(err as AuthError));
     } finally {
       setLoading(false);
     }
@@ -55,7 +62,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay}>
+    <div className={`${styles.modalOverlay} ${darkMode ? styles.dark : ""}`}>
       <div className={styles.modalContent}>
         <button className={styles.closeButton} onClick={onClose}>
           &times;
