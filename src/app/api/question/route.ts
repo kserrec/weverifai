@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { addNewQuestionDoc, askModel, getAllQuestions } from '@/services/questionService';
+import { addNewQuestionDoc, getAllQuestions } from '@/services/questionService';
+import { askModel } from '@/app/api/lib/models';
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
     try {

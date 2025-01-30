@@ -6,12 +6,28 @@ import styles from './login.module.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 
+const postQuestion = async (caller: string, model: string, question: string) => {
+    return await fetch('/api/question', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            question,
+            model,
+            caller: caller || 'anonymous',
+        }),
+    });
+};
+
 const CreatePostPage: React.FC = () => {
-    const [content, setContent] = useState('');
+    const [question, setQuestion] = useState('');
     const [darkMode, setDarkMode] = useState(false);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [response, setResponse] = useState<string | null>(null);
 
     useEffect(() => {
         const storedMode = localStorage.getItem('darkMode') === 'true';
@@ -23,13 +39,28 @@ const CreatePostPage: React.FC = () => {
         localStorage.setItem('darkMode', (!darkMode).toString());
     };
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        console.log('Post submitted:', { content });
-    };
-
     const handleSignUpClick = () => {
         router.push('/login');
+    };
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const res = await postQuestion('testing', 'gpt-3.5-turbo', question);
+            const data = await res.json();
+            if (data.error) {
+                console.error('Error:', data.error);
+                setResponse('Error getting response');
+            } else {
+                setResponse(data.answer);
+            }
+        } catch (error) {
+            console.error('Error submitting question:', error);
+            setResponse('Error submitting question');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -80,7 +111,7 @@ const CreatePostPage: React.FC = () => {
                     <div className={styles.navLinks}>
                         <Link href="#" className={styles.navItem}>Forum</Link>
                         <Link href="#" className={styles.navItem}>Support</Link>
-                        <button type="button" className={styles.navItem} onClick={handleSignUpClick}>Sign Up</button>
+                        <button type="button" className={styles.navItem} onClick={handleSignUpClick}>Log In</button>
                     </div>
 
                     <button 
@@ -105,14 +136,21 @@ const CreatePostPage: React.FC = () => {
                 <h3>Ask GPT</h3>
                 <form className={styles.createPostForm} onSubmit={handleSubmit}>
                     <textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
+                        id="question"
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
                         className={styles.inputField}
                         rows={10}
-                        placeholder="Write your post here..."
+                        placeholder="Write your question here..."
                         required
                     />
+                    {loading && <p className={styles.loading}>Getting response...</p>}
+                    {response && (
+                        <div className={styles.response}>
+                            <h4>Response:</h4>
+                            <p>{response}</p>
+                        </div>
+                    )}
                     <button type="submit" className={styles.submitButton}>Submit</button>
                 </form>
             </div>
