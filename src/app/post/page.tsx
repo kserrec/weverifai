@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import styles from './post.module.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
-import { useDarkMode } from '@/store/darkMode'
+import { useDarkMode } from '@/store/darkMode';
+import { useAuth } from '@/store/auth';
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -22,13 +23,15 @@ const postQuestion = async (caller: string, model: string, question: string) => 
 };
 
 const CreatePostPage: React.FC = () => {
+    const { isLoggedIn } = useAuth();
     const [question, setQuestion] = useState('');
-      const { darkMode, toggleDarkMode } = useDarkMode();
+    const { darkMode, toggleDarkMode } = useDarkMode();
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<string | null>(null);
+    console.log("islogged in? : ", isLoggedIn);
 
     const handleSignUpClick = () => {
         router.push('/login');
@@ -102,7 +105,7 @@ const CreatePostPage: React.FC = () => {
                     <div className={styles.navLinks}>
                         <Link href="#" className={styles.navItem}>Forum</Link>
                         <Link href="#" className={styles.navItem}>Support</Link>
-                        <button type="button" className={styles.navItem} onClick={handleSignUpClick}>Log In</button>
+                        {!isLoggedIn  && <button type="button" className={styles.navItem} onClick={handleSignUpClick}>Log In</button>}
                     </div>
 
                     <button 

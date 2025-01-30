@@ -10,6 +10,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { logIn } from "@/services/auth";
 import SignUpModal from "@/components/signUpModal";
 import { useDarkMode } from '@/store/darkMode'
+import { useAuth } from '@/store/auth';
 
 export default function Login(): JSX.Element {
   const router = useRouter();
@@ -18,9 +19,9 @@ export default function Login(): JSX.Element {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
-
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
+  const { login } = useAuth()
 
   const handleLogIn = async () => {
     try {
@@ -28,6 +29,7 @@ export default function Login(): JSX.Element {
       setErrorMessage("");
       const user = await logIn(email, password);
       console.log("Logged in user:", user);
+      // login({ email })
       router.push('/');
     } catch (error: unknown) {
       const typedError = error as { code?: string; name?: string };

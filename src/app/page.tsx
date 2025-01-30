@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getRecentQuestions } from "@/services/questionService";
-import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import type { QuestionDoc  } from "@/services/types";
 import { useRouter } from "next/navigation";
