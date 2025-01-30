@@ -2,37 +2,17 @@ import { db } from '@/lib/firebase';
 import { addDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import type { QuestionDoc } from './types';
 
-interface Post {
-    id: string;
-    question: string;
-    answer: string;
-    caller: string;
-    model: string;
-    timestamp: string;
-}
-
-export const getRecentPosts = async (postAmount:number): Promise<Post[]> => {
+export const getRecentQuestions = async (postAmount:number): Promise<QuestionDoc[]> => {
     try {
-        const q = query(
+        const querySnapshot = await getDocs(query(
             collection(db, 'questions'),
             orderBy('createdAt', 'desc'),
             limit(postAmount)
-        );
+        ));
 
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                question: data.question || 'No question provided',
-                answer: data.answer || 'No answer available',
-                caller: data.caller || 'Anonymous',
-                model: data.model || 'Unknown model',
-                timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString() : 'No date'
-            };
-        });
+        return querySnapshot.docs.map(doc =>  doc.data() as QuestionDoc);
     } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching questions:', error);
         return [];
     }
 };

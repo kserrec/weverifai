@@ -1,26 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
-import { getRecentPosts } from "@/services/questionService";
+import { getRecentQuestions } from "@/services/questionService";
 import type { ChangeEvent } from "react";
 import type { JSX } from "react";
+import type { QuestionDoc  } from "@/services/types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
 
-interface Post {
-  id: string;
-  question: string;
-  answer: string;
-  caller: string;
-  model: string;
-  timestamp: string;
-}
 export default function Home(): JSX.Element {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<QuestionDoc[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
@@ -28,7 +21,7 @@ export default function Home(): JSX.Element {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const recentPosts = await getRecentPosts(6);
+        const recentPosts = await getRecentQuestions(6);
         console.log('Fetched posts:', recentPosts);
         setPosts(recentPosts);
       } catch (error) {
@@ -120,7 +113,7 @@ export default function Home(): JSX.Element {
           <div className={styles.navLinks}>
             <Link href="#" className={styles.navItem}>Forum</Link>
             <Link href="#" className={styles.navItem}>Support</Link>
-            <button className={styles.signupBtn} onClick={handleSignUpClick}>Sign Up</button>
+            <button className={styles.signupBtn} onClick={handleSignUpClick}>Log In</button>
           </div>
 
           <button 
@@ -156,7 +149,7 @@ export default function Home(): JSX.Element {
                 <div className={styles.postMeta}>
                   <span>Asked by: {post.caller}</span>
                   <span>Model: {post.model}</span>
-                  <span>Posted: {post.timestamp}</span>
+                  <span>Posted: {post.createdAt}</span>
                 </div>
               </div>
             ))}

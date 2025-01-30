@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from "react";
 import { signUp } from "@/services/auth";
-import styles from "./signUpModal.module.css"; // Create and style this CSS module as needed
+import styles from "./signUpModal.module.css";
 
 interface SignUpModalProps {
   isOpen: boolean;

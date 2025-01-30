@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { addNewQuestionDoc, getAllQuestions } from '@/services/questionService';
+import { askModel } from '@/app/api/lib/models';
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
     try {
@@ -34,25 +35,3 @@ export const GET = async (): Promise<NextResponse> => {
         return NextResponse.json({ error: 'Error in GET /api/ask' }, { status: 500 });
     }
 };
-async function askModel(model: string, question: string): Promise<string | null> {
-    try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: model,
-                messages: [{ role: 'user', content: question }],
-                temperature: 0.7,
-            }),
-        });
-
-        const data = await response.json();
-        return data.choices[0]?.message?.content || null;
-    } catch (error) {
-        console.error('Error asking model:', error);
-        return null;
-    }
-}
