@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './login.module.css';
+import styles from './post.module.css';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
+import { useDarkMode } from '@/store/darkMode'
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -22,22 +23,12 @@ const postQuestion = async (caller: string, model: string, question: string) => 
 
 const CreatePostPage: React.FC = () => {
     const [question, setQuestion] = useState('');
-    const [darkMode, setDarkMode] = useState(false);
+      const { darkMode, toggleDarkMode } = useDarkMode();
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<string | null>(null);
-
-    useEffect(() => {
-        const storedMode = localStorage.getItem('darkMode') === 'true';
-        setDarkMode(storedMode);
-    }, []);
-
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        localStorage.setItem('darkMode', (!darkMode).toString());
-    };
 
     const handleSignUpClick = () => {
         router.push('/login');

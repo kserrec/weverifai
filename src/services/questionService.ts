@@ -10,7 +10,10 @@ export const getRecentQuestions = async (postAmount:number): Promise<QuestionDoc
             limit(postAmount)
         ));
 
-        return querySnapshot.docs.map(doc =>  doc.data() as QuestionDoc);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }) as QuestionDoc);
     } catch (error) {
         console.error('Error fetching questions:', error);
         return [];
