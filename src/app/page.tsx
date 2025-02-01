@@ -8,8 +8,11 @@ import Link from "next/link";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
 import { useDarkMode } from '@/store/darkMode'
+import { useAuth } from '@/store/auth';
+import { logOut } from "@/services/auth";
 
 export default function Home(): JSX.Element {
+  const { isLoggedIn } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
@@ -38,9 +41,14 @@ export default function Home(): JSX.Element {
     document.body.classList.toggle(styles.dark, darkMode);
   }, [darkMode]);
 
-  const handleSignUpClick = () => {
-    router.push("/login");
-  };
+  const handleLoginClick = async () => {
+          if (isLoggedIn) {
+              await logOut();
+              return;
+          } else {
+              router.push('/login');
+          }
+      };
 
   const handleCreatePostClick = () => {
     router.push("/post");
@@ -99,7 +107,7 @@ export default function Home(): JSX.Element {
           <div className={styles.navLinks}>
             <Link href="#" className={styles.navItem}>Forum</Link>
             <Link href="#" className={styles.navItem}>Support</Link>
-            <button className={styles.signupBtn} onClick={handleSignUpClick}>Log In</button>
+            <button className={styles.signupBtn} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
           </div>
 
           <button 
@@ -115,7 +123,7 @@ export default function Home(): JSX.Element {
           <div className={styles.dropdownMenu}>
             <Link href="#" className={styles.dropdownItem}>Forum</Link>
             <Link href="#" className={styles.dropdownItem}>Support</Link>
-            <button className={styles.dropdownItem} onClick={handleSignUpClick}>Sign Up</button>
+            <button className={styles.dropdownItem} onClick={handleLoginClick}>Sign Up</button>
           </div>
         )}
       </header>

@@ -2,7 +2,7 @@
 /** @jsxImportSource react */
 import { useRouter } from 'next/navigation';
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import styles from "./login.module.css";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import { useAuth } from '@/store/auth';
 
 export default function Login(): JSX.Element {
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [email, setEmail] = useState("");
@@ -21,7 +22,12 @@ export default function Login(): JSX.Element {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
-  const { login } = useAuth()
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/');
+    }
+  }, [isLoggedIn, router]);
 
   const handleLogIn = async () => {
     try {
@@ -29,7 +35,6 @@ export default function Login(): JSX.Element {
       setErrorMessage("");
       const user = await logIn(email, password);
       console.log("Logged in user:", user);
-      // login({ email })
       router.push('/');
     } catch (error: unknown) {
       const typedError = error as { code?: string; name?: string };

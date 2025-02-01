@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './post.module.css';
@@ -7,6 +7,7 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
+import { logOut } from "@/services/auth";
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -31,10 +32,20 @@ const CreatePostPage: React.FC = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<string | null>(null);
-    console.log("islogged in? : ", isLoggedIn);
 
-    const handleSignUpClick = () => {
-        router.push('/login');
+    useEffect(() => {
+        if (!isLoggedIn) {
+          router.push('/login');
+        }
+      }, [isLoggedIn, router]);
+
+    const handleLoginClick = async () => {
+        if (isLoggedIn) {
+            await logOut();
+            return;
+        } else {
+            router.push('/login');
+        }
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -105,7 +116,7 @@ const CreatePostPage: React.FC = () => {
                     <div className={styles.navLinks}>
                         <Link href="#" className={styles.navItem}>Forum</Link>
                         <Link href="#" className={styles.navItem}>Support</Link>
-                        {!isLoggedIn  && <button type="button" className={styles.navItem} onClick={handleSignUpClick}>Log In</button>}
+                        <button type="button" className={styles.navItem} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
                     </div>
 
                     <button 
@@ -121,7 +132,7 @@ const CreatePostPage: React.FC = () => {
                     <div className={styles.dropdownMenu}>
                         <Link href="#" className={styles.dropdownItem}>Forum</Link>
                         <Link href="#" className={styles.dropdownItem}>Support</Link>
-                        <button className={styles.dropdownItem} onClick={handleSignUpClick}>Sign Up</button>
+                        <button className={styles.dropdownItem} onClick={handleLoginClick}>Sign Up</button>
                     </div>
                 )}
             </header>
