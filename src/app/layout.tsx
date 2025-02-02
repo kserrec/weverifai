@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { JSX } from "react";
 import { AuthStateListener } from '@/components/AuthStateListener'
+import { Header } from '@/components/Header'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthStateListener />
+        <AuthStateListener>
+          <Header />
+        </AuthStateListener>
         {children}
       </body>
     </html>

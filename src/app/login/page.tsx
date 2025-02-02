@@ -5,18 +5,15 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import styles from "./login.module.css";
-import Link from "next/link";
-import { FaBars, FaTimes } from "react-icons/fa";
 import { logIn } from "@/services/auth";
-import SignUpModal from "@/components/signUpModal";
+import SignUpModal from "@/components/SignUpModal";
 import { useDarkMode } from '@/store/darkMode'
 import { useAuth } from '@/store/auth';
 
 export default function Login(): JSX.Element {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
-  const { darkMode, toggleDarkMode } = useDarkMode();
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
@@ -58,38 +55,6 @@ export default function Login(): JSX.Element {
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.accent2}>We</span>Verif
-          <span className={styles.accent}>AI</span>
-        </Link>
-        <nav className={styles.navbar}>
-          <label className={styles.switch}>
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={toggleDarkMode}
-            />
-            <span className={styles.slider}></span>
-          </label>
-          <Link href="#" className={styles.navItem}>Forum</Link>
-          <Link href="#" className={styles.navItem}>Support</Link>
-          <button
-            className={styles.mobileMenuBtn}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            {dropdownOpen ? <FaTimes /> : <FaBars />}
-          </button>
-        </nav>
-        {dropdownOpen && (
-          <div className={styles.dropdownMenu}>
-            <Link href="#" className={styles.dropdownItem}>Forum</Link>
-            <Link href="#" className={styles.dropdownItem}>Support</Link>
-          </div>
-        )}
-      </header>
-
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
           <span className={styles.accent2}>We</span>Verif

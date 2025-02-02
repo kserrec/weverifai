@@ -3,11 +3,8 @@ import React, { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './post.module.css';
-import { FaBars, FaTimes } from 'react-icons/fa';
-import Link from 'next/link';
 import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
-import { logOut } from "@/services/auth";
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -26,27 +23,17 @@ const postQuestion = async (caller: string, model: string, question: string) => 
 const CreatePostPage: React.FC = () => {
     const { isLoggedIn } = useAuth();
     const [question, setQuestion] = useState('');
-    const { darkMode, toggleDarkMode } = useDarkMode();
-    const [menuOpen, setMenuOpen] = useState<boolean>(false);
-    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+    const { darkMode } = useDarkMode();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!isLoggedIn) {
+        if (isLoggedIn === false) {
+            console.log("wooo were NOT logged in")
           router.push('/login');
         }
       }, [isLoggedIn, router]);
-
-    const handleLoginClick = async () => {
-        if (isLoggedIn) {
-            await logOut();
-            return;
-        } else {
-            router.push('/login');
-        }
-    };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -70,73 +57,6 @@ const CreatePostPage: React.FC = () => {
 
     return (
         <div className={`${styles.container} ${darkMode ? styles.dark : ''}`}>
-            <header className={styles.header}>
-                <button
-                    type="button"
-                    className={styles.menuButton}
-                    onClick={() => setMenuOpen(!menuOpen)}
-                >
-                    {menuOpen ? <FaTimes /> : <FaBars />}
-                </button>
-
-                <div className={`${styles.sidebar} ${menuOpen ? styles.open : ''}`}>
-                    <nav className={styles.navbar}>
-                        <button
-                            type="button"
-                            className={styles.closeButton}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            <FaTimes />
-                        </button>
-                        <Link href="#" className={styles.navItem}>General Discussion</Link><br></br>
-                        <Link href="#" className={styles.navItem}>Announcements</Link><br></br>
-                        <Link href="#" className={styles.navItem}>Support</Link><br></br>
-                        <Link href="#" className={styles.navItem}>Off-Topic</Link><br></br>
-                    </nav>
-                </div>
-
-                <Link href="/" className={styles.logo}>
-                    <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
-                </Link>
-
-                <div className={styles.navright}>
-                    <div className={styles.essentialControls}>
-                        <div className={styles.toggleWrapper}>
-                            <label className={styles.switch}>
-                                <input
-                                    type="checkbox"
-                                    checked={darkMode}
-                                    onChange={toggleDarkMode}
-                                />
-                                <span className={styles.slider}></span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div className={styles.navLinks}>
-                        <Link href="#" className={styles.navItem}>Forum</Link>
-                        <Link href="#" className={styles.navItem}>Support</Link>
-                        <button type="button" className={styles.navItem} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
-                    </div>
-
-                    <button 
-                        className={styles.mobileMenuBtn}
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                        aria-label="Toggle mobile menu"
-                    >
-                        <FaBars />
-                    </button>
-                </div>
-
-                {dropdownOpen && (
-                    <div className={styles.dropdownMenu}>
-                        <Link href="#" className={styles.dropdownItem}>Forum</Link>
-                        <Link href="#" className={styles.dropdownItem}>Support</Link>
-                        <button className={styles.dropdownItem} onClick={handleLoginClick}>Sign Up</button>
-                    </div>
-                )}
-            </header>
-
             <div className={styles.createPostBox}>
                 <h3>Ask GPT</h3>
                 <form className={styles.createPostForm} onSubmit={handleSubmit}>

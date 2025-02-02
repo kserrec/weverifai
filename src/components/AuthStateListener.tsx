@@ -4,7 +4,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useAuth } from '@/store/auth'
 
-export function AuthStateListener() {
+export const AuthStateListener: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { login, logout } = useAuth()
 
   useEffect(() => {
@@ -20,5 +20,5 @@ export function AuthStateListener() {
     })
   }, [login, logout])
 
-  return null
+  return <>{children}</>
 }
