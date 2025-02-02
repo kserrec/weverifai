@@ -2,24 +2,32 @@
 /** @jsxImportSource react */
 import { useRouter } from 'next/navigation';
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { JSX } from "react";
-import styles from "./landing.module.css";
+import styles from "./login.module.css";
 import Link from "next/link";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { logIn } from "@/services/auth";
 import SignUpModal from "@/components/signUpModal";
+import { useDarkMode } from '@/store/darkMode'
+import { useAuth } from '@/store/auth';
 
-export default function Landing(): JSX.Element {
+export default function Login(): JSX.Element {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const { isLoggedIn } = useAuth();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
-
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push('/');
+    }
+  }, [isLoggedIn, router]);
 
   const handleLogIn = async () => {
     try {
@@ -38,18 +46,6 @@ export default function Landing(): JSX.Element {
       }
       setShowError(true);
     }
-  };
-
-  useEffect(() => {
-    const storedMode = localStorage.getItem("darkMode") === "true";
-    setDarkMode(storedMode);
-  }, []);
-
-  const toggleDarkMode = (): void => {
-    setDarkMode((prevMode: boolean) => {
-      localStorage.setItem("darkMode", (!prevMode).toString());
-      return !prevMode;
-    });
   };
 
   const openSignUpModal = (): void => {

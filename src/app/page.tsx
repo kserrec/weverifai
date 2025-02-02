@@ -1,16 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import { getRecentQuestions } from "@/services/questionService";
-import type { ChangeEvent } from "react";
 import type { JSX } from "react";
 import type { QuestionDoc  } from "@/services/types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
+import { useDarkMode } from '@/store/darkMode'
+import { useAuth } from '@/store/auth';
+import { logOut } from "@/services/auth";
 
 export default function Home(): JSX.Element {
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const { isLoggedIn } = useAuth();
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [posts, setPosts] = useState<QuestionDoc[]>([]);
@@ -38,26 +41,17 @@ export default function Home(): JSX.Element {
     document.body.classList.toggle(styles.dark, darkMode);
   }, [darkMode]);
 
-  useEffect(() => {
-    const storedMode = localStorage.getItem("darkMode");
-    // Only set if there's a stored preference
-    if (storedMode !== null) {
-      setDarkMode(storedMode === "true");
-    }
-  }, []);
-
-  const handleSignUpClick = () => {
-    router.push("/login");
-  };
+  const handleLoginClick = async () => {
+          if (isLoggedIn) {
+              await logOut();
+              return;
+          } else {
+              router.push('/login');
+          }
+      };
 
   const handleCreatePostClick = () => {
     router.push("/post");
-  };
-
-  const toggleDarkMode = (event: ChangeEvent<HTMLInputElement>): void => {
-    const newDarkMode = event.target.checked;
-    setDarkMode(newDarkMode);
-    localStorage.setItem("darkMode", newDarkMode.toString());
   };
 
   return (
@@ -113,7 +107,7 @@ export default function Home(): JSX.Element {
           <div className={styles.navLinks}>
             <Link href="#" className={styles.navItem}>Forum</Link>
             <Link href="#" className={styles.navItem}>Support</Link>
-            <button className={styles.signupBtn} onClick={handleSignUpClick}>Log In</button>
+            <button className={styles.signupBtn} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
           </div>
 
           <button 
@@ -129,7 +123,7 @@ export default function Home(): JSX.Element {
           <div className={styles.dropdownMenu}>
             <Link href="#" className={styles.dropdownItem}>Forum</Link>
             <Link href="#" className={styles.dropdownItem}>Support</Link>
-            <button className={styles.dropdownItem} onClick={handleSignUpClick}>Sign Up</button>
+            <button className={styles.dropdownItem} onClick={handleLoginClick}>Sign Up</button>
           </div>
         )}
       </header>
@@ -147,9 +141,9 @@ export default function Home(): JSX.Element {
                   <p className={styles.answer}>A: {post.answer}</p>
                 </div>
                 <div className={styles.postMeta}>
-                  <span>Asked by: {post.caller}</span>
-                  <span>Model: {post.model}</span>
-                  <span>Posted: {post.createdAt}</span>
+                  <span key={`caller-${post.id}`}>Asked by: {post.caller}</span>
+                  <span key={`model-${post.id}`}>Model: {post.model}</span>
+                  <span key={`date-${post.id}`}>Posted: {post.createdAt}</span>
                 </div>
               </div>
             ))}
