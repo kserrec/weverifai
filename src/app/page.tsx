@@ -75,10 +75,11 @@ export default function Home(): JSX.Element {
             >
               <FaTimes />
             </button>
-            <Link href="#" className={styles.navItem}>General Discussion</Link><br></br>
-            <Link href="#" className={styles.navItem}>Announcements</Link><br></br>
-            <Link href="#" className={styles.navItem}>Support</Link><br></br>
-            <Link href="#" className={styles.navItem}>Off-Topic</Link><br></br>
+            {/* Want to show top 10-20 questions here with links to them */}
+            {/* <Link href="#" className={styles.navItem}>Question 1</Link><br></br>
+            <Link href="#" className={styles.navItem}>Question 2</Link><br></br>
+            <Link href="#" className={styles.navItem}>Question 3</Link><br></br>
+            <Link href="#" className={styles.navItem}>Question 4</Link><br></br> */}
           </nav>
         </div>
 
@@ -105,9 +106,7 @@ export default function Home(): JSX.Element {
           </div>
           
           <div className={styles.navLinks}>
-            <Link href="#" className={styles.navItem}>Forum</Link>
-            <Link href="#" className={styles.navItem}>Support</Link>
-            <button className={styles.signupBtn} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
+            <button type="button"  className={styles.signupBtn} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
           </div>
 
           <button 
@@ -121,9 +120,7 @@ export default function Home(): JSX.Element {
 
         {dropdownOpen && (
           <div className={styles.dropdownMenu}>
-            <Link href="#" className={styles.dropdownItem}>Forum</Link>
-            <Link href="#" className={styles.dropdownItem}>Support</Link>
-            <button className={styles.dropdownItem} onClick={handleLoginClick}>Sign Up</button>
+            <button type="button"  className={styles.dropdownItem} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
           </div>
         )}
       </header>

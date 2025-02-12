@@ -88,10 +88,6 @@ const CreatePostPage: React.FC = () => {
                         >
                             <FaTimes />
                         </button>
-                        <Link href="#" className={styles.navItem}>General Discussion</Link><br></br>
-                        <Link href="#" className={styles.navItem}>Announcements</Link><br></br>
-                        <Link href="#" className={styles.navItem}>Support</Link><br></br>
-                        <Link href="#" className={styles.navItem}>Off-Topic</Link><br></br>
                     </nav>
                 </div>
 
@@ -114,8 +110,6 @@ const CreatePostPage: React.FC = () => {
                     </div>
                     
                     <div className={styles.navLinks}>
-                        <Link href="#" className={styles.navItem}>Forum</Link>
-                        <Link href="#" className={styles.navItem}>Support</Link>
                         <button type="button" className={styles.navItem} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
                     </div>
 
@@ -130,9 +124,7 @@ const CreatePostPage: React.FC = () => {
 
                 {dropdownOpen && (
                     <div className={styles.dropdownMenu}>
-                        <Link href="#" className={styles.dropdownItem}>Forum</Link>
-                        <Link href="#" className={styles.dropdownItem}>Support</Link>
-                        <button className={styles.dropdownItem} onClick={handleLoginClick}>Sign Up</button>
+                        <button type="button"  className={styles.dropdownItem} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
                     </div>
                 )}
             </header>

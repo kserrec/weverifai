@@ -72,8 +72,6 @@ export default function Login(): JSX.Element {
             />
             <span className={styles.slider}></span>
           </label>
-          <Link href="#" className={styles.navItem}>Forum</Link>
-          <Link href="#" className={styles.navItem}>Support</Link>
           <button
             className={styles.mobileMenuBtn}
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -84,8 +82,6 @@ export default function Login(): JSX.Element {
         </nav>
         {dropdownOpen && (
           <div className={styles.dropdownMenu}>
-            <Link href="#" className={styles.dropdownItem}>Forum</Link>
-            <Link href="#" className={styles.dropdownItem}>Support</Link>
           </div>
         )}
       </header>
