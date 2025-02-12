@@ -4,7 +4,6 @@ import { getRecentQuestions } from "@/services/questionService";
 import type { JSX } from "react";
 import type { QuestionDoc  } from "@/services/types";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import styles from "./home.module.css";
 import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
 import { useDarkMode } from '@/store/darkMode'
