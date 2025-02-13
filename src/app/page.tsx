@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { getRecentQuestions } from "@/services/questionService";
 import type { JSX } from "react";
 import type { QuestionDoc  } from "@/services/types";
-import { useRouter } from "next/navigation";
 import styles from "./home.module.css";
 import { FaUser } from "react-icons/fa";
 import { useDarkMode } from '@/store/darkMode';
