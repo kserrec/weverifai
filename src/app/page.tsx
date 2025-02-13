@@ -5,19 +5,14 @@ import type { JSX } from "react";
 import type { QuestionDoc  } from "@/services/types";
 import { useRouter } from "next/navigation";
 import styles from "./home.module.css";
-import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
-import { useDarkMode } from '@/store/darkMode'
-import { useAuth } from '@/store/auth';
-import { logOut } from "@/services/auth";
+import { FaUser } from "react-icons/fa";
+import { useDarkMode } from '@/store/darkMode';
+import Header from "@/components/Header";
 
 export default function Home(): JSX.Element {
-  const { isLoggedIn } = useAuth();
-  const { darkMode, toggleDarkMode } = useDarkMode();
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const { darkMode } = useDarkMode();
   const [posts, setPosts] = useState<QuestionDoc[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -40,89 +35,9 @@ export default function Home(): JSX.Element {
     document.body.classList.toggle(styles.dark, darkMode);
   }, [darkMode]);
 
-  const handleLoginClick = async () => {
-          if (isLoggedIn) {
-              await logOut();
-              return;
-          } else {
-              router.push('/login');
-          }
-      };
-
-  const handleCreatePostClick = () => {
-    router.push("/post");
-  };
-
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <header className={styles.header}>
-        <button 
-          className={styles.menuButton} 
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-
-        <div className={`${styles.sidebar} ${menuOpen ? styles.open : ""}`}>
-          <div className={styles.sidebarOverlay} onClick={() => setMenuOpen(false)}></div>
-          <nav className={styles.navbar}>
-            <button 
-              className={styles.closeButton} 
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
-            >
-              <FaTimes />
-            </button>
-            {/* Want to show top 10-20 questions here with links to them */}
-            {/* <Link href="#" className={styles.navItem}>Question 1</Link><br></br>
-            <Link href="#" className={styles.navItem}>Question 2</Link><br></br>
-            <Link href="#" className={styles.navItem}>Question 3</Link><br></br>
-            <Link href="#" className={styles.navItem}>Question 4</Link><br></br> */}
-          </nav>
-        </div>
-
-        <div className={styles.logo}>
-          <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
-        </div>
-
-        <div className={styles.navright}>
-          <div className={styles.essentialControls}>
-            <div className={styles.toggleWrapper}>
-              <label className={styles.switch}>
-                <input 
-                  type="checkbox" 
-                  checked={darkMode} 
-                  onChange={toggleDarkMode} 
-                  aria-label="Toggle dark mode"
-                />
-                <span className={styles.slider}></span>
-              </label>
-            </div>
-            <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
-              <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
-            </button>
-          </div>
-          
-          <div className={styles.navLinks}>
-            <button type="button"  className={styles.signupBtn} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
-          </div>
-
-          <button 
-            className={styles.mobileMenuBtn}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            <FaBars />
-          </button>
-        </div>
-
-        {dropdownOpen && (
-          <div className={styles.dropdownMenu}>
-            <button type="button"  className={styles.dropdownItem} onClick={handleLoginClick}>{isLoggedIn ? 'Log Out' : 'Log In'}</button>
-          </div>
-        )}
-      </header>
+      <Header />
 
       <section className={styles.forum}>
         <h1 className={styles.forumTitle}>Recent Questions</h1>
@@ -130,26 +45,48 @@ export default function Home(): JSX.Element {
           <div>Loading...</div>
         ) : posts.length > 0 ? (
           <div className={styles.posts}>
-            {posts.map((post) => (
-              <div key={post.id} className={styles.post}>
-                <div className={styles.postHeader}>
-                  <h3 className={styles.question}>Q: {post.question}</h3>
-                  <p className={styles.answer}>A: {post.answer}</p>
+            {posts.map((post) => {
+              // Format the timestamp
+              const date = new Date(post.createdAt);
+              const formattedDate = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              });
+
+              return (
+                <div key={post.id} className={styles.post}>
+                  <div className={styles.question}>
+                    {post.question}
+                  </div>
+                  <div className={styles.answer}>
+                    {post.answer}
+                  </div>
+                  <div className={styles.postMeta}>
+                    <div className={styles.caller}>
+                      <FaUser /> {post.caller}
+                    </div>
+                    <div className={styles.modelBadge}>
+                      {post.model}
+                    </div>
+                    <div className={styles.timestamp}>
+                      {formattedDate}
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.postMeta}>
-                  <span key={`caller-${post.id}`}>Asked by: {post.caller}</span>
-                  <span key={`model-${post.id}`}>Model: {post.model}</span>
-                  <span key={`date-${post.id}`}>Posted: {post.createdAt}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div>No posts found</div>
         )}
       </section>
 
-      <footer className={styles.footer}>© 2025 ForumName. All rights reserved.</footer>
+      <footer className={styles.footer}>
+        <span className={styles.footerLogo}>
+          <span className={styles.footerAccent2}>We</span>Verif<span className={styles.footerAccent}>AI</span>
+        </span>
+      </footer>
     </div>
   );
 }
