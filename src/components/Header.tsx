@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import type { JSX } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { FaBars, FaTimes, FaPlus } from "react-icons/fa";
+import { FaBars, FaPlus } from "react-icons/fa";
 import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
 import { logOut } from "@/services/auth";
@@ -11,10 +11,12 @@ import styles from "./Header.module.css";
 
 export default function Header(): JSX.Element {
   const router = useRouter();
+  const pathname = usePathname();
   const { isLoggedIn } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+  const isLoginPage = pathname === '/login';
 
   const handleLoginClick = async () => {
     if (isLoggedIn) {
@@ -31,27 +33,6 @@ export default function Header(): JSX.Element {
 
   return (
     <header className={`${styles.header} ${darkMode ? styles.dark : ""}`}>
-      <button 
-        className={styles.menuButton} 
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Toggle menu"
-      >
-        {menuOpen ? <FaTimes /> : <FaBars />}
-      </button>
-
-      <div className={`${styles.sidebar} ${menuOpen ? styles.open : ""} ${darkMode ? styles.dark : ""}`}>
-        <div className={styles.sidebarOverlay} onClick={() => setMenuOpen(false)}></div>
-        <nav className={styles.navbar}>
-          <button 
-            className={styles.closeButton} 
-            onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
-          >
-            <FaTimes />
-          </button>
-        </nav>
-      </div>
-
       <Link href="/" className={styles.logo}>
         <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
       </Link>
@@ -69,27 +50,33 @@ export default function Header(): JSX.Element {
               <span className={styles.slider}></span>
             </label>
           </div>
-          <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
-            <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
-          </button>
+          {!isLoginPage && (
+            <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
+              <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
+            </button>
+          )}
         </div>
         
-        <div className={styles.navLinks}>
-          <button type="button" className={styles.signupBtn} onClick={handleLoginClick}>
-            {isLoggedIn ? 'Log Out' : 'Log In'}
-          </button>
-        </div>
+        {!isLoginPage && (
+          <>
+            <div className={styles.navLinks}>
+              <button type="button" className={styles.signupBtn} onClick={handleLoginClick}>
+                {isLoggedIn ? 'Log Out' : 'Log In'}
+              </button>
+            </div>
 
-        <button 
-          className={styles.mobileMenuBtn}
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          aria-label="Toggle mobile menu"
-        >
-          <FaBars />
-        </button>
+            <button 
+              className={styles.mobileMenuBtn}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              <FaBars />
+            </button>
+          </>
+        )}
       </div>
 
-      {dropdownOpen && (
+      {dropdownOpen && !isLoginPage && (
         <div className={styles.dropdownMenu}>
           <button type="button" className={styles.dropdownItem} onClick={handleLoginClick}>
             {isLoggedIn ? 'Log Out' : 'Log In'}
