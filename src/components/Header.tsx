@@ -52,7 +52,7 @@ export default function Header(): JSX.Element {
           </div>
           {!isLoginPage && (
             <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
-              <FaPlus /> <span className={styles.createPostText}>UVerifAI</span>
+              <FaPlus /> <span className={styles.createPostText}>Ask AI</span>
             </button>
           )}
         </div>
