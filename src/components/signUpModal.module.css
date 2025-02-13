@@ -21,6 +21,7 @@
   position: relative;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid #eee;
+  border-radius: 8px;
 }
 
 /* Replace [data-theme='dark'] with .dark */
@@ -47,12 +48,24 @@
   color: #bbb;
 }
 
+.hint {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.dark .hint {
+  color: #999;
+}
+
 .inputField {
   width: 100%;
   padding: 12px;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
   border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }

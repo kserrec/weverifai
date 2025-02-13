@@ -6,6 +6,8 @@ import styles from './post.module.css';
 import { useAuth } from '@/store/auth';
 import { useDarkMode } from '@/store/darkMode';
 import Header from "@/components/Header";
+import { getUserData } from '@/services/auth';
+import { auth } from '@/lib/firebase';
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -16,7 +18,7 @@ const postQuestion = async (caller: string, model: string, question: string) => 
         body: JSON.stringify({
             question,
             model,
-            caller: caller || 'anonymous',
+            caller,
         }),
     });
 };
@@ -28,18 +30,36 @@ const CreatePostPage: React.FC = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState<string | null>(null);
+    const [username, setUsername] = useState<string>('');
 
     useEffect(() => {
         if (!isLoggedIn) {
-          router.push('/login');
+            router.push('/login');
+        } else {
+            // Get the user's username when component mounts
+            const fetchUsername = async () => {
+                const user = auth.currentUser;
+                if (user) {
+                    const userData = await getUserData(user.uid);
+                    if (userData) {
+                        setUsername(userData.username);
+                    }
+                }
+            };
+            void fetchUsername();
         }
     }, [isLoggedIn, router]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        if (!username) {
+            console.error('Username not found');
+            return;
+        }
+        
         setLoading(true);
         try {
-            const response = await postQuestion('user', 'gpt-4', question);
+            const response = await postQuestion(username, 'gpt-3.5-turbo', question);
             if (response.ok) {
                 const data = await response.json();
                 setResponse(data.answer);
@@ -70,7 +90,7 @@ const CreatePostPage: React.FC = () => {
                     <button 
                         type="submit" 
                         className={styles.submitButton}
-                        disabled={loading}
+                        disabled={loading || !username}
                     >
                         {loading ? 'Posting...' : 'Post Question'}
                     </button>
