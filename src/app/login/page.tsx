@@ -123,22 +123,23 @@ export default function Login(): JSX.Element {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <button type="submit" className={styles.authButton}>
+                <button type="submit" className={styles.loginButton}>
                   Log In
                 </button>
-              </form>
-              {showError && (
-                <div className="text-red-500 mt-2 text-sm">
-                  {errorMessage}
-                </div>)}
+                {showError && (
+                  <div className="text-red-500 mt-2 text-sm">
+                    {errorMessage}
+                  </div>)}
 
-              {/* Sign Up Modal Button */}
-              <button
-                type="button"
-                onClick={openSignUpModal}
-              >
-                Not a user yet? Click here to sign up.
-              </button>
+                {/* Sign Up Modal Button */}
+                <button
+                  type="button"
+                  onClick={openSignUpModal}
+                  className={styles.signupLink}
+                >
+                  Not a user yet? Sign up here
+                </button>
+              </form>
             </div>
           </div>
 
