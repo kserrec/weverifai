@@ -65,7 +65,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, darkMode }) 
     }
 
     try {
-      const user = await signUp(newEmail, newPassword, username);
+      await signUp(newEmail, newPassword, username);
       setSuccess(`Welcome, ${username}!`);
       setNewEmail("");
       setNewPassword("");
