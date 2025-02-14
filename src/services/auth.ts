@@ -1,23 +1,82 @@
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signOut
+    signOut,
+    updateProfile
 } from 'firebase/auth';
+import { 
+    doc, 
+    setDoc, 
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs
+} from 'firebase/firestore';
+
+interface UserData {
+    email: string;
+    username: string;
+    createdAt: number;
+}
 
 /**
- * Signs up a user with email and password.
+ * Checks if a username is already taken
  */
-export async function signUp(email: string, password: string) {
-    console.log('email: ', typeof email);
-    console.log('password: ', typeof password);
+export async function isUsernameTaken(username: string): Promise<boolean> {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+}
+
+/**
+ * Signs up a user with email, password, and username.
+ */
+export async function signUp(email: string, password: string, username: string) {
+    // First check if username is taken
+    if (await isUsernameTaken(username)) {
+        throw new Error('Username is already taken');
+    }
+
     try {
+        // Create auth user
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        return userCredential.user; // Contains displayedName, uid, etc.
+        const user = userCredential.user;
+
+        // Update profile with username
+        await updateProfile(user, {
+            displayName: username
+        });
+
+        // Create user document in Firestore
+        const userData: UserData = {
+            email: email,
+            username: username,
+            createdAt: Date.now()
+        };
+
+        await setDoc(doc(db, 'users', user.uid), userData);
+
+        return user;
     } catch (error) {
         console.error('Error signing up:', error);
         throw error;
     }
+}
+
+/**
+ * Gets user data from Firestore
+ */
+export async function getUserData(uid: string) {
+    const docRef = doc(db, 'users', uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+        return docSnap.data() as UserData;
+    }
+    return null;
 }
 
 /**
@@ -26,7 +85,8 @@ export async function signUp(email: string, password: string) {
 export async function logIn(email: string, password: string) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        return userCredential.user; // Contains various user properties
+        const userData = await getUserData(userCredential.user.uid);
+        return { user: userCredential.user, userData };
     } catch (error) {
         console.error('Error logging in:', error);
         throw error;

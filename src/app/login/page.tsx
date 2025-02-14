@@ -5,18 +5,16 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import styles from "./login.module.css";
-import Link from "next/link";
-import { FaBars, FaTimes } from "react-icons/fa";
 import { logIn } from "@/services/auth";
 import SignUpModal from "@/components/signUpModal";
-import { useDarkMode } from '@/store/darkMode'
+import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
+import Header from "@/components/Header";
 
 export default function Login(): JSX.Element {
   const router = useRouter();
   const { isLoggedIn } = useAuth();
-  const { darkMode, toggleDarkMode } = useDarkMode();
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
@@ -58,33 +56,7 @@ export default function Login(): JSX.Element {
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.logo}>
-          <span className={styles.accent2}>We</span>Verif
-          <span className={styles.accent}>AI</span>
-        </Link>
-        <nav className={styles.navbar}>
-          <label className={styles.switch}>
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={toggleDarkMode}
-            />
-            <span className={styles.slider}></span>
-          </label>
-          <button
-            className={styles.mobileMenuBtn}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            {dropdownOpen ? <FaTimes /> : <FaBars />}
-          </button>
-        </nav>
-        {dropdownOpen && (
-          <div className={styles.dropdownMenu}>
-          </div>
-        )}
-      </header>
+      <Header />
 
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
@@ -102,7 +74,6 @@ export default function Login(): JSX.Element {
       <div className={styles.authContainer}>
         <div className={styles.authCard}>
           <div className={styles.authSections}>
-            {/* Log In Section */}
             <div className={styles.authRight}>
               <h3>Log In</h3>
               <form onSubmit={async (e) => {
@@ -131,7 +102,6 @@ export default function Login(): JSX.Element {
                     {errorMessage}
                   </div>)}
 
-                {/* Sign Up Modal Button */}
                 <button
                   type="button"
                   onClick={openSignUpModal}
@@ -143,7 +113,6 @@ export default function Login(): JSX.Element {
             </div>
           </div>
 
-          {/* Continue as Guest */}
           <div className={styles.authFooter}>
             <button className={styles.guestButton}>
               Continue as Guest
@@ -152,12 +121,11 @@ export default function Login(): JSX.Element {
         </div>
       </div>
 
-      {/* Sign Up Modal */}
       <SignUpModal 
         isOpen={isSignUpModalOpen} 
         onClose={closeSignUpModal}
         darkMode={darkMode}
       />
-        </div>
-    );
-  }
+    </div>
+  );
+}

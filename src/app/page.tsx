@@ -39,7 +39,6 @@ export default function Home(): JSX.Element {
       <Header />
 
       <section className={styles.forum}>
-        <h1 className={styles.forumTitle}>Recent Questions</h1>
         {loading ? (
           <div>Loading...</div>
         ) : posts.length > 0 ? (
