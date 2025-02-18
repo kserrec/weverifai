@@ -1,0 +1,3 @@
+export const reformatQuestion = (userQuestion: string) => {
+    return `Respond to the following question strictly in the exact JSON format: { "answer": "this is the answer", "topics": ["topic1", "topic2", "topic3"] }. Ensure the answer is correct and generate exactly three relevant topics (make the topics short, concise, generic, and lowercase). Do not add anything else. Question: ${userQuestion}.`;
+};
