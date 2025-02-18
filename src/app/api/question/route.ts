@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { addNewQuestionDoc, getAllQuestions } from '@/services/questionService';
-import { askModelWithRetries } from '@/app/api/lib/models';
+import { askModelWithRetries, ModelError } from '@/app/api/lib/models';
 import { reformatQuestion } from '@/helpers/models';
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
@@ -24,16 +24,25 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
             // 4. Return only the answer to the user
             return NextResponse.json({ answer: modelResponse.answer });
-        } catch (modelError: any) {
-            console.error(`Error getting model response: ${modelError.message}`);
-            return NextResponse.json(
-                { error: modelError.message || 'Error getting model response' },
-                { status: 500 }
-            );
+        } catch (error) {
+            if (error instanceof ModelError) {
+                console.error(`Model error for ${error.modelName}: ${error.message}`);
+                if (error.cause) {
+                    console.error('Caused by:', error.cause);
+                }
+                return NextResponse.json(
+                    { error: error.message },
+                    { status: 500 }
+                );
+            }
+            throw error; // Re-throw unexpected errors
         }
     } catch (error) {
         console.error('Error in POST /api/ask:', error);
-        return NextResponse.json({ error: 'Error in POST /api/ask' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
     }
 };
 

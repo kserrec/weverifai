@@ -1,12 +1,12 @@
 import { db } from '@/lib/firebase';
+import type {
+    DocumentReference} from 'firebase/firestore';
 import { 
     collection, 
     getDocs, 
     query, 
     where, 
     addDoc,
-    DocumentReference,
-    documentId,
     increment,
     writeBatch
 } from 'firebase/firestore';
