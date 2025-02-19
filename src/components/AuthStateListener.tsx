@@ -3,22 +3,27 @@ import { useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useAuth } from '@/store/auth'
+import { getUserData } from '@/services/auth'
 
 export function AuthStateListener() {
   const { login, logout } = useAuth()
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (user) => {
+    return onAuthStateChanged(auth, async (user) => {
       if (user) {
-        login({
-          email: user.email || '',
-          name: user.displayName || undefined
-        })
+        const userData = await getUserData(user.uid);
+        if (userData) {
+          login({
+            email: user.email || '',
+            username: userData.username,
+            name: user.displayName || undefined
+          });
+        }
       } else {
-        logout()
+        logout();
       }
-    })
-  }, [login, logout])
+    });
+  }, [login, logout]);
 
-  return null
+  return null;
 }
