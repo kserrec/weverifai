@@ -13,7 +13,7 @@ import Header from "@/components/Header";
 
 export default function Login(): JSX.Element {
   const router = useRouter();
-  const { isLoggedIn, login } = useAuth();
+  const { isLoggedIn, isLoading, login } = useAuth();
   const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,10 +22,15 @@ export default function Login(): JSX.Element {
   const [showError, setShowError] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      router.push('/');
+    if (!isLoading && isLoggedIn) {
+      router.replace('/');
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, isLoading, router]);
+
+  // Don't render the page content while loading or if logged in
+  if (isLoading || isLoggedIn) {
+    return <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}></div>;
+  }
 
   const handleLogIn = async () => {
     try {
