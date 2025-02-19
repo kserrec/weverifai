@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware'
 type User = {
   email: string
   name?: string
+  username: string
 }
 
 type AuthStore = {

@@ -13,7 +13,7 @@ import Header from "@/components/Header";
 
 export default function Login(): JSX.Element {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, login } = useAuth();
   const { darkMode } = useDarkMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +31,15 @@ export default function Login(): JSX.Element {
     try {
       setShowError(false);
       setErrorMessage("");
-      const user = await logIn(email, password);
+      const { user, userData } = await logIn(email, password);
+      if (!userData) {
+        throw new Error('User data not found');
+      }
+      login({
+        email: user.email!,
+        username: userData.username,
+        name: user.displayName || undefined
+      });
       console.log("Logged in user:", user);
       router.push('/');
     } catch (error: unknown) {

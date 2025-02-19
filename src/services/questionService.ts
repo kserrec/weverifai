@@ -1,8 +1,13 @@
 import { db } from '@/lib/firebase';
-import { addDoc, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, orderBy, limit, getDoc } from 'firebase/firestore';
 import type { QuestionDoc } from './types';
+import { getOrCreateTopics, incrementTopicQuestionCounts } from './topicService';
 
-export const getRecentQuestions = async (postAmount:number): Promise<QuestionDoc[]> => {
+export interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
+    topics: string[];
+}
+
+export const getRecentQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
     try {
         const querySnapshot = await getDocs(query(
             collection(db, 'questions'),
@@ -10,10 +15,29 @@ export const getRecentQuestions = async (postAmount:number): Promise<QuestionDoc
             limit(postAmount)
         ));
 
-        return querySnapshot.docs.map(doc => ({
+        // Get all questions with their topic references
+        const questionsWithRefs = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }) as QuestionDoc);
+
+        // Fetch topic names for each question
+        const questionsWithTopics = await Promise.all(
+            questionsWithRefs.map(async (question) => {
+                const topicDocs = await Promise.all(
+                    question.topicRefs.map(ref => getDoc(ref))
+                );
+                
+                const topics = topicDocs.map(doc => doc.data()?.name || 'Unknown Topic');
+                
+                return {
+                    ...question,
+                    topics,
+                };
+            })
+        );
+
+        return questionsWithTopics;
     } catch (error) {
         console.error('Error fetching questions:', error);
         return [];
@@ -21,9 +45,20 @@ export const getRecentQuestions = async (postAmount:number): Promise<QuestionDoc
 };
 
 // adds new document to firebase questions collection
-export const addNewQuestionDoc = async (answer: string, caller: string, model: string, question: string): Promise<void> => {
+export const addNewQuestionDoc = async (
+    answer: string,
+    topics: string[],
+    caller: string,
+    model: string,
+    question: string
+): Promise<void> => {
+    // First, get or create topic references
+    const topicRefs = await getOrCreateTopics(topics);
+
+    // Add the question document with topic references
     await addDoc(collection(db, 'questions'), {
         answer,
+        topicRefs,
         caller,
         createdAt: Date.now(),
         downvotes: 0,
@@ -31,15 +66,34 @@ export const addNewQuestionDoc = async (answer: string, caller: string, model: s
         model,
         upvotes: 0,
     });
+
+    // Increment question count for each topic
+    await incrementTopicQuestionCounts(topicRefs);
 };
 
 // Gets all questions from the 'questions' collection
-export const getAllQuestions = async (): Promise<QuestionDoc[]> => {
+export const getAllQuestions = async (): Promise<QuestionResponse[]> => {
     const querySnapshot = await getDocs(collection(db, 'questions'));
-    const questions: QuestionDoc[] = [];
-    querySnapshot.forEach((doc) => {
-        const data = doc.data() as QuestionDoc;
-        questions.push({ ...data, id: doc.id });
-    });
-    return questions;
+    const questionsWithRefs = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+    }) as QuestionDoc);
+
+    // Fetch topic names for each question
+    const questionsWithTopics = await Promise.all(
+        questionsWithRefs.map(async (question) => {
+            const topicDocs = await Promise.all(
+                question.topicRefs.map(ref => getDoc(ref))
+            );
+            
+            const topics = topicDocs.map(doc => doc.data()?.name || 'Unknown Topic');
+            
+            return {
+                ...question,
+                topics,
+            };
+        })
+    );
+
+    return questionsWithTopics;
 };
