@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from "react";
 import { signUp } from "@/services/auth";
 import styles from "./signUpModal.module.css";
+import { useAuth } from '@/store/auth';
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface SignUpModalProps {
 
 const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, darkMode }) => {
   const router = useRouter();
+  const { login } = useAuth();
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -65,12 +67,21 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, darkMode }) 
     }
 
     try {
-      await signUp(newEmail, newPassword, username);
+      const { user, userData } = await signUp(newEmail, newPassword, username);
+      
+      // Log the user in
+      login({
+        email: user.email || '',
+        username: userData.username,
+        name: user.displayName || undefined
+      });
+
       setSuccess(`Welcome, ${username}!`);
       setNewEmail("");
       setNewPassword("");
       setUsername("");
-      router.push('/');
+      onClose(); // Close the modal
+      router.replace('/'); // Replace instead of push
     } catch (err: unknown) {
       setError(getErrorMessage(err as AuthError));
     } finally {

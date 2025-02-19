@@ -59,7 +59,7 @@ export async function signUp(email: string, password: string, username: string) 
 
         await setDoc(doc(db, 'users', user.uid), userData);
 
-        return user;
+        return { user, userData };
     } catch (error) {
         console.error('Error signing up:', error);
         throw error;

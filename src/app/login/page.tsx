@@ -46,7 +46,7 @@ export default function Login(): JSX.Element {
         name: user.displayName || undefined
       });
       console.log("Logged in user:", user);
-      router.push('/');
+      router.replace('/');
     } catch (error: unknown) {
       const typedError = error as { code?: string; name?: string };
       console.log("Login Error: ", JSON.stringify(error));
@@ -124,12 +124,6 @@ export default function Login(): JSX.Element {
                 </button>
               </form>
             </div>
-          </div>
-
-          <div className={styles.authFooter}>
-            <button className={styles.guestButton}>
-              Continue as Guest
-            </button>
           </div>
         </div>
       </div>
