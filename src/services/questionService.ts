@@ -3,7 +3,7 @@ import { addDoc, collection, getDocs, query, orderBy, limit, getDoc } from 'fire
 import type { QuestionDoc } from './types';
 import { getOrCreateTopics, incrementTopicQuestionCounts } from './topicService';
 
-interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
+export interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
     topics: string[];
 }
 

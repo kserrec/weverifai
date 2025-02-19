@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getRecentQuestions } from "@/services/questionService";
 import type { JSX } from "react";
-import type { QuestionDoc  } from "@/services/types";
+import type { QuestionResponse } from "@/services/questionService";
 import styles from "./home.module.css";
 import { FaUser } from "react-icons/fa";
 import { useDarkMode } from '@/store/darkMode';
@@ -10,7 +10,7 @@ import Header from "@/components/Header";
 
 export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
-  const [posts, setPosts] = useState<QuestionDoc[]>([]);
+  const [posts, setPosts] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
