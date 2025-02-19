@@ -46,7 +46,7 @@ export default function Login(): JSX.Element {
         name: user.displayName || undefined
       });
       console.log("Logged in user:", user);
-      router.push('/');
+      router.replace('/');
     } catch (error: unknown) {
       const typedError = error as { code?: string; name?: string };
       console.log("Login Error: ", JSON.stringify(error));
