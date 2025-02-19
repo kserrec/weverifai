@@ -125,12 +125,6 @@ export default function Login(): JSX.Element {
               </form>
             </div>
           </div>
-
-          <div className={styles.authFooter}>
-            <button className={styles.guestButton}>
-              Continue as Guest
-            </button>
-          </div>
         </div>
       </div>
 
