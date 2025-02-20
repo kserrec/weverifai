@@ -791,3 +791,14 @@ input:checked + .slider:before {
   background: none;
   color: inherit;
 }
+
+.loadingMore {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.dark .loadingMore {
+  color: #888;
+}

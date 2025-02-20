@@ -10,4 +10,5 @@ export interface QuestionDoc {
     question: string;
     model: string;
     upvotes: number;
+    spicyScore?: number;
 };

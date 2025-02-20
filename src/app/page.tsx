@@ -10,17 +10,23 @@ import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
 import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
+import type { QueryDocumentSnapshot } from 'firebase/firestore';
 
 export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
   const { isLoggedIn, user } = useAuth();
   const [posts, setPosts] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [currentFilter, setCurrentFilter] = useState<string>('New');
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const filterRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
   const [votingStates, setVotingStates] = useState<Record<string, { upvoted: boolean; downvoted: boolean }>>({});
 
   // Add click outside handler
@@ -42,50 +48,84 @@ export default function Home(): JSX.Element {
     };
   }, [filterOpen]);
 
-  const fetchPosts = useCallback(async (filter: string) => {
+  const fetchPosts = useCallback(async (filter: string, isInitial: boolean = false) => {
     try {
-      setLoading(true);
-      let recentPosts;
+      if (isInitial) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      let result;
+      const currentLastDoc = isInitial || !lastDoc ? undefined : lastDoc;
       
       switch (filter) {
         case 'Top':
-          recentPosts = await getTopQuestions(6);
+          result = await getTopQuestions(10, currentLastDoc);
           break;
         case 'Hot':
-          recentPosts = await getHotQuestions(6);
+          result = await getHotQuestions(10, currentLastDoc);
           break;
         case 'Spicy':
-          recentPosts = await getSpicyQuestions(6);
+          result = await getSpicyQuestions(10, currentLastDoc);
           break;
         default:
-          recentPosts = await getRecentQuestions(6);
+          result = await getRecentQuestions(10, currentLastDoc);
       }
       
-      console.log('Fetched posts:', recentPosts);
+      const { questions: recentPosts, lastDoc: newLastDoc } = result;
       
-      // Initialize voting states from the fetched data
       if (user?.email) {
-        const initialVotingStates: Record<string, { upvoted: boolean; downvoted: boolean }> = {};
+        const newVotingStates: Record<string, { upvoted: boolean; downvoted: boolean }> = {};
         recentPosts.forEach(post => {
-          initialVotingStates[post.id] = {
+          newVotingStates[post.id] = {
             upvoted: post.upvoters?.includes(user.email) || false,
             downvoted: post.downvoters?.includes(user.email) || false
           };
         });
-        setVotingStates(initialVotingStates);
+        setVotingStates(prev => ({ ...prev, ...newVotingStates }));
       }
       
-      setPosts(recentPosts);
+      setPosts(prev => isInitial ? recentPosts : [...prev, ...recentPosts]);
+      setLastDoc(newLastDoc);
+      setHasMore(recentPosts.length === 10);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [user?.email]);
+  }, [user?.email, lastDoc]);
 
   useEffect(() => {
-    void fetchPosts(currentFilter);
+    setPosts([]);
+    setLastDoc(null);
+    setHasMore(true);
+    void fetchPosts(currentFilter, true);
   }, [currentFilter, fetchPosts]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          void fetchPosts(currentFilter);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (loadingRef.current) {
+      observer.observe(loadingRef.current);
+    }
+
+    observerRef.current = observer;
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [fetchPosts, hasMore, loadingMore, loading, currentFilter]);
 
   const handleFilterClick = (filter: string) => {
     setCurrentFilter(filter);
@@ -268,6 +308,11 @@ export default function Home(): JSX.Element {
                     </div>
                   );
                 })}
+                {hasMore && (
+                  <div ref={loadingRef} className={styles.loadingMore}>
+                    {loadingMore ? 'Loading more...' : ''}
+                  </div>
+                )}
               </div>
             ) : (
               <div>No posts found</div>
