@@ -10,11 +10,10 @@ import { logOut } from "@/services/auth";
 import styles from "./Header.module.css";
 
 interface HeaderProps {
-  sidebarOpen: boolean;
   onSidebarToggle: () => void;
 }
 
-export default function Header({ sidebarOpen, onSidebarToggle }: HeaderProps): JSX.Element {
+export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();

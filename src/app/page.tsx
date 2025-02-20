@@ -42,7 +42,7 @@ export default function Home(): JSX.Element {
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <Header sidebarOpen={sidebarOpen} onSidebarToggle={handleSidebarToggle} />
+      <Header onSidebarToggle={handleSidebarToggle} />
       
       <div className={styles.pageContent}>
         <TopicsSidebar isOpen={sidebarOpen} />

@@ -20,11 +20,6 @@ export default function Login(): JSX.Element {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
-  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-
-  const handleSidebarToggle = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
@@ -62,7 +57,7 @@ export default function Login(): JSX.Element {
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <Header sidebarOpen={sidebarOpen} onSidebarToggle={handleSidebarToggle} />
+      <Header onSidebarToggle={() => {}} />
 
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
@@ -110,7 +105,7 @@ export default function Login(): JSX.Element {
                   className={styles.signupLink}
                   onClick={() => setIsSignUpModalOpen(true)}
                 >
-                  Don't have an account? Sign up
+                  Don&apos;t have an account? Sign up
                 </button>
               </form>
             </div>

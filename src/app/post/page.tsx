@@ -62,7 +62,7 @@ const CreatePostPage: React.FC = () => {
 
     return (
         <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-            <Header sidebarOpen={sidebarOpen} onSidebarToggle={handleSidebarToggle} />
+            <Header onSidebarToggle={handleSidebarToggle} />
             
             <div className={styles.createPostBox}>
                 <form onSubmit={handleSubmit} className={styles.createPostForm}>
