@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getRecentQuestions, updateVote } from "@/services/questionService";
 import type { JSX } from "react";
 import type { QuestionResponse } from "@/services/questionService";
 import styles from "./home.module.css";
-import { FaUser } from "react-icons/fa";
-import { BiUpArrow, BiDownArrow } from "react-icons/bi";
+import { FaUser, FaFilter } from "react-icons/fa";
+import { BiUpArrow, BiDownArrow, BiCaretDown } from "react-icons/bi";
 import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
 import Header from "@/components/Header";
@@ -17,7 +17,35 @@ export default function Home(): JSX.Element {
   const [posts, setPosts] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [filterOpen, setFilterOpen] = useState<boolean>(false);
+  const [currentFilter, setCurrentFilter] = useState<string>('New');
+  const filterRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [votingStates, setVotingStates] = useState<Record<string, { upvoted: boolean; downvoted: boolean }>>({});
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (filterOpen && 
+          !buttonRef.current?.contains(event.target as Node) && 
+          !filterRef.current?.contains(event.target as Node)) {
+        setFilterOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [filterOpen]);
+
+  const handleFilterClick = (filter: string) => {
+    setCurrentFilter(filter);
+    setFilterOpen(false);
+  };
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!sidebarOpen);
@@ -113,13 +141,62 @@ export default function Home(): JSX.Element {
     document.body.classList.toggle(styles.dark, darkMode);
   }, [darkMode]);
 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFilterOpen(!filterOpen);
+  };
+
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
       <Header onSidebarToggle={handleSidebarToggle} />
       
       <div className={styles.pageContent}>
-        <TopicsSidebar isOpen={sidebarOpen} />
+        <TopicsSidebar 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+        />
         <main className={styles.mainContent}>
+          <div className={styles.filterBar}>
+            <button 
+              ref={buttonRef}
+              className={styles.filterButton}
+              onClick={handleButtonClick}
+            >
+              {currentFilter.toUpperCase()} POSTS <BiCaretDown />
+            </button>
+            {filterOpen && (
+              <div 
+                ref={filterRef}
+                className={styles.filterDropdown}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div 
+                  className={`${styles.filterOption} ${currentFilter === 'New' ? styles.selected : ''}`}
+                  onClick={() => handleFilterClick('New')}
+                >
+                  New
+                </div>
+                <div 
+                  className={`${styles.filterOption} ${currentFilter === 'Top' ? styles.selected : ''}`}
+                  onClick={() => handleFilterClick('Top')}
+                >
+                  Top
+                </div>
+                <div 
+                  className={`${styles.filterOption} ${currentFilter === 'Hot' ? styles.selected : ''}`}
+                  onClick={() => handleFilterClick('Hot')}
+                >
+                  Hot
+                </div>
+                <div 
+                  className={`${styles.filterOption} ${currentFilter === 'Spicy' ? styles.selected : ''}`}
+                  onClick={() => handleFilterClick('Spicy')}
+                >
+                  Spicy
+                </div>
+              </div>
+            )}
+          </div>
           <section className={styles.forum}>
             {loading ? (
               <div>Loading...</div>
