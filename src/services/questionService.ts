@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase';
-import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, arrayUnion, arrayRemove, where } from 'firebase/firestore';
+import type { QueryDocumentSnapshot, QueryConstraint } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, arrayUnion, arrayRemove, where, startAfter } from 'firebase/firestore';
 import type { QuestionDoc } from './types';
 import { getOrCreateTopics, incrementTopicQuestionCounts } from './topicService';
 
@@ -9,51 +10,26 @@ export interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
     downvotes: number;
     upvoters?: string[];
     downvoters?: string[];
+    spicyScore?: number;
 }
 
-export const getRecentQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
+export const getRecentQuestions = async (
+    postAmount: number,
+    lastDoc?: QueryDocumentSnapshot
+): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        const querySnapshot = await getDocs(query(
-            collection(db, 'questions'),
+        const queryConstraints: QueryConstraint[] = [
             orderBy('createdAt', 'desc'),
             limit(postAmount)
-        ));
+        ];
 
-        // Get all questions with their topic references
-        const questionsWithRefs = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }) as QuestionDoc & { upvoters?: string[], downvoters?: string[] });
+        if (lastDoc) {
+            queryConstraints.push(startAfter(lastDoc));
+        }
 
-        // Fetch topic names for each question
-        const questionsWithTopics = await Promise.all(
-            questionsWithRefs.map(async (question) => {
-                const topicDocs = await Promise.all(
-                    question.topicRefs.map(ref => getDoc(ref))
-                );
-                
-                const topics = topicDocs.map(doc => doc.data()?.name || 'Unknown Topic');
-                
-                return {
-                    ...question,
-                    topics,
-                };
-            })
-        );
-
-        return questionsWithTopics;
-    } catch (error) {
-        console.error('Error fetching questions:', error);
-        return [];
-    }
-};
-
-export const getTopQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
-    try {
         const querySnapshot = await getDocs(query(
             collection(db, 'questions'),
-            orderBy('upvotes', 'desc'),
-            limit(postAmount)
+            ...queryConstraints
         ));
 
         // Get all questions with their topic references
@@ -78,22 +54,89 @@ export const getTopQuestions = async (postAmount: number): Promise<QuestionRespo
             })
         );
 
-        return questionsWithTopics;
+        return {
+            questions: questionsWithTopics,
+            lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null
+        };
     } catch (error) {
-        console.error('Error fetching top questions:', error);
-        return [];
+        console.error('Error fetching questions:', error);
+        return { questions: [], lastDoc: null };
     }
 };
 
-export const getHotQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
+export const getTopQuestions = async (
+    postAmount: number,
+    lastDoc?: QueryDocumentSnapshot
+): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
+    try {
+        const queryConstraints: QueryConstraint[] = [
+            orderBy('upvotes', 'desc'),
+            limit(postAmount)
+        ];
+
+        if (lastDoc) {
+            queryConstraints.push(startAfter(lastDoc));
+        }
+
+        const querySnapshot = await getDocs(query(
+            collection(db, 'questions'),
+            ...queryConstraints
+        ));
+
+        // Get all questions with their topic references
+        const questionsWithRefs = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }) as QuestionDoc & { upvoters?: string[], downvoters?: string[] });
+
+        // Fetch topic names for each question
+        const questionsWithTopics = await Promise.all(
+            questionsWithRefs.map(async (question) => {
+                const topicDocs = await Promise.all(
+                    question.topicRefs.map(ref => getDoc(ref))
+                );
+                
+                const topics = topicDocs.map(doc => doc.data()?.name || 'Unknown Topic');
+                
+                return {
+                    ...question,
+                    topics,
+                };
+            })
+        );
+
+        return {
+            questions: questionsWithTopics,
+            lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null
+        };
+    } catch (error) {
+        console.error('Error fetching top questions:', error);
+        return { questions: [], lastDoc: null };
+    }
+};
+
+export const getHotQuestions = async (
+    postAmount: number,
+    lastDoc?: QueryDocumentSnapshot
+): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
         // Calculate timestamp for 2 days ago
         const twoDaysAgo = Date.now() - (2 * 24 * 60 * 60 * 1000);
 
+        const queryConstraints: QueryConstraint[] = [
+            where('createdAt', '>=', twoDaysAgo),
+            orderBy('createdAt', 'desc'),
+            orderBy('upvotes', 'desc'),
+            limit(postAmount)
+        ];
+
+        if (lastDoc) {
+            queryConstraints.push(startAfter(lastDoc));
+        }
+
         const querySnapshot = await getDocs(query(
             collection(db, 'questions'),
-            where('createdAt', '>=', twoDaysAgo),
-            orderBy('createdAt', 'desc')
+            ...queryConstraints
         ));
 
         // Get all questions with their topic references
@@ -102,14 +145,9 @@ export const getHotQuestions = async (postAmount: number): Promise<QuestionRespo
             ...doc.data()
         }) as QuestionDoc & { upvoters?: string[], downvoters?: string[] });
 
-        // Sort by upvotes in memory
-        const sortedQuestions = questionsWithRefs.sort((a, b) => 
-            (b.upvotes || 0) - (a.upvotes || 0)
-        ).slice(0, postAmount);
-
         // Fetch topic names for each question
         const questionsWithTopics = await Promise.all(
-            sortedQuestions.map(async (question) => {
+            questionsWithRefs.map(async (question) => {
                 const topicDocs = await Promise.all(
                     question.topicRefs.map(ref => getDoc(ref))
                 );
@@ -123,18 +161,34 @@ export const getHotQuestions = async (postAmount: number): Promise<QuestionRespo
             })
         );
 
-        return questionsWithTopics;
+        return {
+            questions: questionsWithTopics,
+            lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null
+        };
     } catch (error) {
         console.error('Error fetching hot questions:', error);
-        return [];
+        return { questions: [], lastDoc: null };
     }
 };
 
-export const getSpicyQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
+export const getSpicyQuestions = async (
+    postAmount: number,
+    lastDoc?: QueryDocumentSnapshot
+): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        // Get all questions
+        const queryConstraints: QueryConstraint[] = [
+            orderBy('spicyScore', 'desc'),
+            orderBy('createdAt', 'desc'),
+            limit(postAmount)
+        ];
+
+        if (lastDoc) {
+            queryConstraints.push(startAfter(lastDoc));
+        }
+
         const querySnapshot = await getDocs(query(
-            collection(db, 'questions')
+            collection(db, 'questions'),
+            ...queryConstraints
         ));
 
         // Get all questions with their topic references
@@ -143,39 +197,9 @@ export const getSpicyQuestions = async (postAmount: number): Promise<QuestionRes
             ...doc.data()
         }) as QuestionDoc & { upvoters?: string[], downvoters?: string[] });
 
-        // Calculate controversy score for each post
-        const scoredQuestions = questionsWithRefs.map(question => {
-            const upvotes = question.upvotes || 0;
-            const downvotes = question.downvotes || 0;
-            const totalVotes = upvotes + downvotes;
-            
-            // Skip posts with very low engagement or no votes in either direction
-            if (totalVotes < 3 || upvotes === 0 || downvotes === 0) {
-                return { ...question, controversyScore: 0 };
-            }
-            
-            // Calculate the balance ratio (0.5 means perfectly balanced)
-            const ratio = upvotes / totalVotes;
-            const balanceScore = Math.abs(0.5 - ratio);
-            
-            // Controversy score formula:
-            // Higher when:
-            // 1. Total votes is higher
-            // 2. Ratio is closer to 0.5 (balanced upvotes/downvotes)
-            // 3. Both upvotes and downvotes are present
-            const controversyScore = (totalVotes * (1 - balanceScore * 2)) * Math.min(upvotes, downvotes) / Math.max(upvotes, downvotes);
-            
-            return { ...question, controversyScore };
-        });
-
-        // Sort by controversy score and take top N
-        const sortedQuestions = scoredQuestions
-            .sort((a, b) => (b.controversyScore || 0) - (a.controversyScore || 0))
-            .slice(0, postAmount);
-
         // Fetch topic names for each question
         const questionsWithTopics = await Promise.all(
-            sortedQuestions.map(async (question) => {
+            questionsWithRefs.map(async (question) => {
                 const topicDocs = await Promise.all(
                     question.topicRefs.map(ref => getDoc(ref))
                 );
@@ -189,10 +213,13 @@ export const getSpicyQuestions = async (postAmount: number): Promise<QuestionRes
             })
         );
 
-        return questionsWithTopics;
+        return {
+            questions: questionsWithTopics,
+            lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null
+        };
     } catch (error) {
         console.error('Error fetching spicy questions:', error);
-        return [];
+        return { questions: [], lastDoc: null };
     }
 };
 
@@ -217,6 +244,7 @@ export const addNewQuestionDoc = async (
         question,
         model,
         upvotes: 0,
+        spicyScore: 0,
     });
 
     // Increment question count for each topic
@@ -250,28 +278,49 @@ export const getAllQuestions = async (): Promise<QuestionResponse[]> => {
     return questionsWithTopics;
 };
 
-export const updateVote = async (questionId: string, userId: string, voteType: 'upvote' | 'downvote', value: boolean) => {
-    try {
-        const questionRef = doc(db, 'questions', questionId);
-        const votersField = voteType === 'upvote' ? 'upvoters' : 'downvoters';
-        const countField = voteType === 'upvote' ? 'upvotes' : 'downvotes';
-
-        if (value) {
-            // Adding vote
-            await updateDoc(questionRef, {
-                [votersField]: arrayUnion(userId),
-                [countField]: increment(1)
-            });
-        } else {
-            // Removing vote
-            await updateDoc(questionRef, {
-                [votersField]: arrayRemove(userId),
-                [countField]: increment(-1)
-            });
-        }
-        return true;
-    } catch (error) {
-        console.error('Error updating vote:', error);
-        return false;
+export const updateVote = async (
+    questionId: string,
+    userId: string,
+    voteType: 'upvote' | 'downvote',
+    isAdding: boolean
+): Promise<void> => {
+    const questionRef = doc(db, 'questions', questionId);
+    const questionDoc = await getDoc(questionRef);
+    
+    if (!questionDoc.exists()) {
+        throw new Error('Question not found');
     }
+
+    const data = questionDoc.data();
+    const upvotes = (data.upvotes || 0) + (voteType === 'upvote' ? (isAdding ? 1 : -1) : 0);
+    const downvotes = (data.downvotes || 0) + (voteType === 'downvote' ? (isAdding ? 1 : -1) : 0);
+    
+    // Calculate spicy score
+    const totalVotes = upvotes + downvotes;
+    let spicyScore = 0;
+    
+    if (totalVotes >= 3 && upvotes > 0 && downvotes > 0) {
+        const ratio = upvotes / totalVotes;
+        const balanceScore = Math.abs(0.5 - ratio);
+        spicyScore = (totalVotes * (1 - balanceScore * 2)) * Math.min(upvotes, downvotes) / Math.max(upvotes, downvotes);
+    }
+
+    type UpdateData = {
+        [key: string]: number | ReturnType<typeof increment> | ReturnType<typeof arrayUnion> | ReturnType<typeof arrayRemove>;
+    };
+
+    const updates: UpdateData = {
+        [voteType === 'upvote' ? 'upvotes' : 'downvotes']: increment(isAdding ? 1 : -1),
+        [`${voteType}rs`]: isAdding ? arrayUnion(userId) : arrayRemove(userId),
+        spicyScore
+    };
+
+    // Remove from opposite vote array if necessary
+    const oppositeVoters = voteType === 'upvote' ? data.downvoters : data.upvoters;
+    if (oppositeVoters?.includes(userId)) {
+        updates[`${voteType === 'upvote' ? 'downvoters' : 'upvoters'}`] = arrayRemove(userId);
+        updates[voteType === 'upvote' ? 'downvotes' : 'upvotes'] = increment(-1);
+    }
+
+    await updateDoc(questionRef, updates);
 };
