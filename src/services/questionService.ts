@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase';
-import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, arrayUnion, arrayRemove, where, startAfter, QueryDocumentSnapshot, QueryConstraint } from 'firebase/firestore';
+import type { QueryDocumentSnapshot, QueryConstraint } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, arrayUnion, arrayRemove, where, startAfter } from 'firebase/firestore';
 import type { QuestionDoc } from './types';
 import { getOrCreateTopics, incrementTopicQuestionCounts } from './topicService';
 
@@ -17,7 +18,7 @@ export const getRecentQuestions = async (
     lastDoc?: QueryDocumentSnapshot
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        let queryConstraints: QueryConstraint[] = [
+        const queryConstraints: QueryConstraint[] = [
             orderBy('createdAt', 'desc'),
             limit(postAmount)
         ];
@@ -68,7 +69,7 @@ export const getTopQuestions = async (
     lastDoc?: QueryDocumentSnapshot
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        let queryConstraints: QueryConstraint[] = [
+        const queryConstraints: QueryConstraint[] = [
             orderBy('upvotes', 'desc'),
             limit(postAmount)
         ];
@@ -122,7 +123,7 @@ export const getHotQuestions = async (
         // Calculate timestamp for 2 days ago
         const twoDaysAgo = Date.now() - (2 * 24 * 60 * 60 * 1000);
 
-        let queryConstraints: QueryConstraint[] = [
+        const queryConstraints: QueryConstraint[] = [
             where('createdAt', '>=', twoDaysAgo),
             orderBy('createdAt', 'desc'),
             orderBy('upvotes', 'desc'),
@@ -175,7 +176,7 @@ export const getSpicyQuestions = async (
     lastDoc?: QueryDocumentSnapshot
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        let queryConstraints: QueryConstraint[] = [
+        const queryConstraints: QueryConstraint[] = [
             orderBy('spicyScore', 'desc'),
             orderBy('createdAt', 'desc'),
             limit(postAmount)
@@ -304,7 +305,11 @@ export const updateVote = async (
         spicyScore = (totalVotes * (1 - balanceScore * 2)) * Math.min(upvotes, downvotes) / Math.max(upvotes, downvotes);
     }
 
-    const updates: { [key: string]: any } = {
+    type UpdateData = {
+        [key: string]: number | ReturnType<typeof increment> | ReturnType<typeof arrayUnion> | ReturnType<typeof arrayRemove>;
+    };
+
+    const updates: UpdateData = {
         [voteType === 'upvote' ? 'upvotes' : 'downvotes']: increment(isAdding ? 1 : -1),
         [`${voteType}rs`]: isAdding ? arrayUnion(userId) : arrayRemove(userId),
         spicyScore
