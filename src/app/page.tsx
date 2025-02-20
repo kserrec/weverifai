@@ -17,19 +17,98 @@ export default function Home(): JSX.Element {
   const { isLoggedIn, user } = useAuth();
   const [posts, setPosts] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const [currentFilter, setCurrentFilter] = useState<string>('New');
-  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot | null>(null);
-  const [hasMore, setHasMore] = useState<boolean>(true);
+  const lastDocRef = useRef<QueryDocumentSnapshot | null>(null);
+  const hasMoreRef = useRef<boolean>(true);
   const filterRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
   const [votingStates, setVotingStates] = useState<Record<string, { upvoted: boolean; downvoted: boolean }>>({});
+  const fetchingRef = useRef<boolean>(false);
 
-  // Add click outside handler
+  const fetchPosts = useCallback(async (filter: string, isInitial: boolean = false) => {
+    if (fetchingRef.current || (!isInitial && !hasMoreRef.current)) return;
+    
+    try {
+      fetchingRef.current = true;
+      if (isInitial) {
+        setLoading(true);
+        lastDocRef.current = null;
+        setPosts([]);
+      }
+
+      let result;
+      const currentLastDoc = isInitial ? undefined : (lastDocRef.current || undefined);
+      
+      switch (filter) {
+        case 'Top':
+          result = await getTopQuestions(10, currentLastDoc);
+          break;
+        case 'Hot':
+          result = await getHotQuestions(10, currentLastDoc);
+          break;
+        case 'Spicy':
+          result = await getSpicyQuestions(10, currentLastDoc);
+          break;
+        default:
+          result = await getRecentQuestions(10, currentLastDoc);
+      }
+      
+      const { questions: newPosts, lastDoc: newLastDoc } = result;
+      
+      if (user?.email) {
+        const newVotingStates: Record<string, { upvoted: boolean; downvoted: boolean }> = {};
+        newPosts.forEach(post => {
+          newVotingStates[post.id] = {
+            upvoted: post.upvoters?.includes(user.email) || false,
+            downvoted: post.downvoters?.includes(user.email) || false
+          };
+        });
+        setVotingStates(prev => ({ ...prev, ...newVotingStates }));
+      }
+      
+      setPosts(prev => isInitial ? newPosts : [...prev, ...newPosts]);
+      lastDocRef.current = newLastDoc;
+      hasMoreRef.current = newPosts.length === 10;
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+      fetchingRef.current = false;
+    }
+  }, [user?.email]);
+
+  // Initial load and filter changes
+  useEffect(() => {
+    hasMoreRef.current = true;
+    void fetchPosts(currentFilter, true);
+  }, [currentFilter, fetchPosts]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      const target = entries[0];
+      if (target.isIntersecting && hasMoreRef.current && !fetchingRef.current && !loading) {
+        void fetchPosts(currentFilter);
+      }
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      rootMargin: '100px',
+      threshold: 0.1
+    });
+
+    const currentLoadingRef = loadingRef.current;
+    if (currentLoadingRef) {
+      observer.observe(currentLoadingRef);
+    }
+
+    return () => observer.disconnect();
+  }, [currentFilter, fetchPosts, loading]);
+
+  // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (filterOpen && 
@@ -48,86 +127,8 @@ export default function Home(): JSX.Element {
     };
   }, [filterOpen]);
 
-  const fetchPosts = useCallback(async (filter: string, isInitial: boolean = false) => {
-    try {
-      if (isInitial) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
-
-      let result;
-      const currentLastDoc = isInitial || !lastDoc ? undefined : lastDoc;
-      
-      switch (filter) {
-        case 'Top':
-          result = await getTopQuestions(10, currentLastDoc);
-          break;
-        case 'Hot':
-          result = await getHotQuestions(10, currentLastDoc);
-          break;
-        case 'Spicy':
-          result = await getSpicyQuestions(10, currentLastDoc);
-          break;
-        default:
-          result = await getRecentQuestions(10, currentLastDoc);
-      }
-      
-      const { questions: recentPosts, lastDoc: newLastDoc } = result;
-      
-      if (user?.email) {
-        const newVotingStates: Record<string, { upvoted: boolean; downvoted: boolean }> = {};
-        recentPosts.forEach(post => {
-          newVotingStates[post.id] = {
-            upvoted: post.upvoters?.includes(user.email) || false,
-            downvoted: post.downvoters?.includes(user.email) || false
-          };
-        });
-        setVotingStates(prev => ({ ...prev, ...newVotingStates }));
-      }
-      
-      setPosts(prev => isInitial ? recentPosts : [...prev, ...recentPosts]);
-      setLastDoc(newLastDoc);
-      setHasMore(recentPosts.length === 10);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [user?.email, lastDoc]);
-
-  useEffect(() => {
-    setPosts([]);
-    setLastDoc(null);
-    setHasMore(true);
-    void fetchPosts(currentFilter, true);
-  }, [currentFilter, fetchPosts]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
-          void fetchPosts(currentFilter);
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    if (loadingRef.current) {
-      observer.observe(loadingRef.current);
-    }
-
-    observerRef.current = observer;
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [fetchPosts, hasMore, loadingMore, loading, currentFilter]);
-
   const handleFilterClick = (filter: string) => {
+    if (filter === currentFilter) return;
     setCurrentFilter(filter);
     setFilterOpen(false);
   };
@@ -253,64 +254,58 @@ export default function Home(): JSX.Element {
             )}
           </div>
           <section className={styles.forum}>
-            {loading ? (
+            {loading && posts.length === 0 ? (
               <div>Loading...</div>
             ) : posts.length > 0 ? (
               <div className={styles.posts}>
-                {posts.map((post) => {
-                  const voteState = votingStates[post.id] || { upvoted: false, downvoted: false };
-                  const date = new Date(post.createdAt);
-                  const formattedDate = date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  });
-
-                  return (
-                    <div key={post.id} className={styles.post}>
-                      <div className={styles.question}>
-                        {post.question}
+                {posts.map((post) => (
+                  <div key={post.id} className={styles.post}>
+                    <div className={styles.question}>
+                      {post.question}
+                    </div>
+                    <div className={styles.answer}>
+                      {post.answer}
+                    </div>
+                    <div className={styles.postMeta}>
+                      <div className={styles.voteButtons}>
+                        <button 
+                          className={`${styles.voteButton} ${votingStates[post.id]?.upvoted ? styles.upvoted : ''}`}
+                          onClick={() => handleVote(post.id, 'upvote')}
+                          aria-label="Upvote"
+                        >
+                          <BiUpArrow />
+                        </button>
+                        <span className={styles.voteCount}>{post.upvotes || 0}</span>
+                        <button 
+                          className={`${styles.voteButton} ${votingStates[post.id]?.downvoted ? styles.downvoted : ''}`}
+                          onClick={() => handleVote(post.id, 'downvote')}
+                          aria-label="Downvote"
+                        >
+                          <BiDownArrow />
+                        </button>
+                        <span className={styles.voteCount}>{post.downvotes || 0}</span>
                       </div>
-                      <div className={styles.answer}>
-                        {post.answer}
-                      </div>
-                      <div className={styles.postMeta}>
-                        <div className={styles.voteButtons}>
-                          <button 
-                            className={`${styles.voteButton} ${voteState.upvoted ? styles.upvoted : ''}`}
-                            onClick={() => handleVote(post.id, 'upvote')}
-                            aria-label="Upvote"
-                          >
-                            <BiUpArrow />
-                          </button>
-                          <span className={styles.voteCount}>{post.upvotes || 0}</span>
-                          <button 
-                            className={`${styles.voteButton} ${voteState.downvoted ? styles.downvoted : ''}`}
-                            onClick={() => handleVote(post.id, 'downvote')}
-                            aria-label="Downvote"
-                          >
-                            <BiDownArrow />
-                          </button>
-                          <span className={styles.voteCount}>{post.downvotes || 0}</span>
+                      <div className={styles.metaRight}>
+                        <div className={styles.caller}>
+                          <FaUser /> {post.caller}
                         </div>
-                        <div className={styles.metaRight}>
-                          <div className={styles.caller}>
-                            <FaUser /> {post.caller}
-                          </div>
-                          <div className={styles.modelBadge}>
-                            {post.model}
-                          </div>
-                          <div className={styles.timestamp}>
-                            {formattedDate}
-                          </div>
+                        <div className={styles.modelBadge}>
+                          {post.model}
+                        </div>
+                        <div className={styles.timestamp}>
+                          {new Date(post.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-                {hasMore && (
+                  </div>
+                ))}
+                {hasMoreRef.current && (
                   <div ref={loadingRef} className={styles.loadingMore}>
-                    {loadingMore ? 'Loading more...' : ''}
+                    {fetchingRef.current ? 'Loading more...' : ''}
                   </div>
                 )}
               </div>
