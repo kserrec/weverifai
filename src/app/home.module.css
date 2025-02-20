@@ -226,6 +226,7 @@ input:checked + .slider:before {
   color: #1a1a1a;
   margin-bottom: 8px;
   line-height: 1.4;
+  text-align: left;
 }
 
 .dark .question {
@@ -239,6 +240,7 @@ input:checked + .slider:before {
   font-size: 1rem;
   padding-left: 8px;
   border-left: 2px solid #007bff;
+  text-align: left;
 }
 
 .dark .answer {
@@ -249,7 +251,7 @@ input:checked + .slider:before {
 .postMeta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   padding-top: 8px;
   border-top: 1px solid #eee;
   color: #666;
@@ -621,4 +623,61 @@ input:checked + .slider:before {
     height: calc(100vh - 18px);
     left: -250px;
   }
+}
+
+.voteButtons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.voteButton {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  color: #999;
+  transition: color 0.2s ease;
+}
+
+.dark .voteButton {
+  color: #666;
+}
+
+.voteButton:hover {
+  color: #666;
+}
+
+.dark .voteButton:hover {
+  color: #999;
+}
+
+.voteButton.upvoted, .voteButton.downvoted {
+  color: #007bff;
+}
+
+.dark .voteButton.upvoted, .dark .voteButton.downvoted {
+  color: #3ea6ff;
+}
+
+.voteCount {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 500;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.dark .voteCount {
+  color: #666;
+}
+
+.metaRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }

@@ -5,6 +5,7 @@ import type { JSX } from "react";
 import type { QuestionResponse } from "@/services/questionService";
 import styles from "./home.module.css";
 import { FaUser } from "react-icons/fa";
+import { BiUpArrow, BiDownArrow } from "react-icons/bi";
 import { useDarkMode } from '@/store/darkMode';
 import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
@@ -70,14 +71,32 @@ export default function Home(): JSX.Element {
                         {post.answer}
                       </div>
                       <div className={styles.postMeta}>
-                        <div className={styles.caller}>
-                          <FaUser /> {post.caller}
+                        <div className={styles.voteButtons}>
+                          <button 
+                            className={`${styles.voteButton} ${styles.upvoted}`}
+                            aria-label="Upvote"
+                          >
+                            <BiUpArrow />
+                          </button>
+                          <span className={styles.voteCount}>42</span>
+                          <button 
+                            className={`${styles.voteButton} ${styles.downvoted}`}
+                            aria-label="Downvote"
+                          >
+                            <BiDownArrow />
+                          </button>
+                          <span className={styles.voteCount}>12</span>
                         </div>
-                        <div className={styles.modelBadge}>
-                          {post.model}
-                        </div>
-                        <div className={styles.timestamp}>
-                          {formattedDate}
+                        <div className={styles.metaRight}>
+                          <div className={styles.caller}>
+                            <FaUser /> {post.caller}
+                          </div>
+                          <div className={styles.modelBadge}>
+                            {post.model}
+                          </div>
+                          <div className={styles.timestamp}>
+                            {formattedDate}
+                          </div>
                         </div>
                       </div>
                     </div>
