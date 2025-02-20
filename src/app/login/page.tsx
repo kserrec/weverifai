@@ -20,6 +20,11 @@ export default function Login(): JSX.Element {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showError, setShowError] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   useEffect(() => {
     if (!isLoading && isLoggedIn) {
@@ -32,10 +37,12 @@ export default function Login(): JSX.Element {
     return <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}></div>;
   }
 
-  const handleLogIn = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowError(false);
+    setErrorMessage("");
+
     try {
-      setShowError(false);
-      setErrorMessage("");
       const { user, userData } = await logIn(email, password);
       if (!userData) {
         throw new Error('User data not found');
@@ -45,31 +52,17 @@ export default function Login(): JSX.Element {
         username: userData.username,
         name: user.displayName || undefined
       });
-      console.log("Logged in user:", user);
       router.replace('/');
-    } catch (error: unknown) {
-      const typedError = error as { code?: string; name?: string };
-      console.log("Login Error: ", JSON.stringify(error));
-      if (typedError.code === 'auth/invalid-credential') {
-        setErrorMessage("Wrong credentials, please try again.");
-      } else {
-        setErrorMessage("Something went wrong, please try again.");
-      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage("Invalid email or password");
       setShowError(true);
     }
   };
 
-  const openSignUpModal = (): void => {
-    setIsSignUpModalOpen(true);
-  };
-
-  const closeSignUpModal = (): void => {
-    setIsSignUpModalOpen(false);
-  };
-
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <Header />
+      <Header sidebarOpen={sidebarOpen} onSidebarToggle={handleSidebarToggle} />
 
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
@@ -89,38 +82,35 @@ export default function Login(): JSX.Element {
           <div className={styles.authSections}>
             <div className={styles.authRight}>
               <h3>Log In</h3>
-              <form onSubmit={async (e) => {
-                e.preventDefault();
-                await handleLogIn();
-              }}>
+              <form onSubmit={handleSubmit}>
                 <input
                   type="email"
-                  placeholder="Email"
                   className={styles.inputField}
+                  placeholder="Email"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
                 <input
                   type="password"
-                  placeholder="Password"
                   className={styles.inputField}
+                  placeholder="Password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                {showError && (
+                  <div className={styles.error}>{errorMessage}</div>
+                )}
                 <button type="submit" className={styles.loginButton}>
                   Log In
                 </button>
-                {showError && (
-                  <div className="text-red-500 mt-2 text-sm">
-                    {errorMessage}
-                  </div>)}
-
                 <button
                   type="button"
-                  onClick={openSignUpModal}
                   className={styles.signupLink}
+                  onClick={() => setIsSignUpModalOpen(true)}
                 >
-                  Not a user yet? Sign up here
+                  Don't have an account? Sign up
                 </button>
               </form>
             </div>
@@ -128,9 +118,9 @@ export default function Login(): JSX.Element {
         </div>
       </div>
 
-      <SignUpModal 
-        isOpen={isSignUpModalOpen} 
-        onClose={closeSignUpModal}
+      <SignUpModal
+        isOpen={isSignUpModalOpen}
+        onClose={() => setIsSignUpModalOpen(false)}
         darkMode={darkMode}
       />
     </div>

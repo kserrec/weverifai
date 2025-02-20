@@ -62,20 +62,6 @@
     color: #aaa;
 }
 
-.hamburger {
-    display: none;
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1001;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: inherit;
-    padding: 0.5rem;
-}
-
 /* Mobile styles */
 @media (max-width: 768px) {
     .sidebar {
@@ -96,10 +82,6 @@
 
     .sidebar.open {
         transform: translateX(0);
-    }
-
-    .hamburger {
-        display: block;
     }
 }
 

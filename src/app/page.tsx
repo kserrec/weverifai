@@ -13,6 +13,11 @@ export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
   const [posts, setPosts] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -37,10 +42,10 @@ export default function Home(): JSX.Element {
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <Header />
+      <Header sidebarOpen={sidebarOpen} onSidebarToggle={handleSidebarToggle} />
       
       <div className={styles.pageContent}>
-        <TopicsSidebar />
+        <TopicsSidebar isOpen={sidebarOpen} />
         <main className={styles.mainContent}>
           <section className={styles.forum}>
             {loading ? (
