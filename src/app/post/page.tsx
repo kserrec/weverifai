@@ -46,7 +46,7 @@ const CreatePostPage: React.FC = () => {
 
         setLoading(true);
         try {
-            const res = await postQuestion(user.username, 'gpt-4', question);
+            const res = await postQuestion(user.username, 'gpt-3.5-turbo', question);
             if (res.ok) {
                 router.push('/');
             } else {

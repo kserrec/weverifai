@@ -65,8 +65,9 @@
 .switch {
   position: relative;
   display: inline-block;
-  width: 40px;
-  height: 20px;
+  width: 46px;
+  height: 24px;
+  border: 3px solid red;
 }
 
 .switch input {
@@ -83,19 +84,21 @@
   right: 0;
   bottom: 0;
   background-color: #007bff;
-  transition: 0.4s;
-  border-radius: 20px;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 24px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
-  left: 2px;
-  bottom: 2px;
-  background-color: #ffffff;
-  transition: 0.4s;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
   border-radius: 50%;
 }
 
@@ -104,7 +107,9 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(20px);
+  -webkit-transform: translateX(22px);
+  -ms-transform: translateX(22px);
+  transform: translateX(22px);
 }
 
 .navright {
@@ -194,7 +199,7 @@ input:checked + .slider:before {
   display: grid;
   gap: 1rem;
   width: 100%;
-  padding-top: 1rem;
+  padding-top: 0;
 }
 
 .post {
@@ -581,7 +586,7 @@ input:checked + .slider:before {
 
 .pageContent {
   display: flex;
-  padding-top: 45px;
+  padding-top: 61px;
   min-height: calc(100vh - 111px);
 }
 
@@ -601,7 +606,7 @@ input:checked + .slider:before {
     padding: 0 1rem 2rem 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .forum {
@@ -622,6 +627,10 @@ input:checked + .slider:before {
     top: 18px;
     height: calc(100vh - 18px);
     left: -250px;
+  }
+
+  .filterBar {
+    padding-left: 1rem;
   }
 }
 
@@ -672,4 +681,113 @@ input:checked + .slider:before {
   align-items: center;
   gap: 12px;
   margin-left: auto;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  color: #555;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  justify-content: space-between;
+}
+
+.filterButton svg {
+  font-size: 1rem;
+  margin-left: 0.25rem;
+}
+
+.dark .filterButton {
+  background: #222;
+  border-color: #333;
+  color: #bbb;
+}
+
+.filterButton:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.dark .filterButton:hover {
+  border-color: #f36100;
+  color: #f36100;
+}
+
+.filterDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dark .filterDropdown {
+  background: #222;
+  border-color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.filterOption {
+  padding: 0.75rem 1rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterOption.selected {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  font-weight: 500;
+}
+
+.dark .filterOption.selected {
+  background: rgba(243, 97, 0, 0.1);
+  color: #f36100;
+}
+
+.dark .filterOption {
+  color: #bbb;
+}
+
+.filterOption:hover {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+}
+
+.dark .filterOption:hover {
+  background: rgba(243, 97, 0, 0.1);
+  color: #f36100;
+}
+
+.filterOption.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filterOption.disabled:hover {
+  background: none;
+  color: inherit;
+}
+
+.dark .filterOption.disabled:hover {
+  background: none;
+  color: inherit;
 }

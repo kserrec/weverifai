@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { JSX } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -19,6 +19,26 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
   const { isLoggedIn } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (dropdownOpen && 
+          !menuButtonRef.current?.contains(event.target as Node) && 
+          !dropdownRef.current?.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const isLoginPage = pathname === '/login';
 
@@ -80,6 +100,7 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
             </div>
 
             <button 
+              ref={menuButtonRef}
               className={styles.mobileMenuBtn}
               onClick={() => setDropdownOpen(!dropdownOpen)}
               aria-label="Toggle mobile menu"
@@ -91,7 +112,11 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
       </div>
 
       {dropdownOpen && !isLoginPage && (
-        <div className={styles.dropdownMenu}>
+        <div 
+          ref={dropdownRef}
+          className={styles.dropdownMenu}
+          onClick={(e) => e.stopPropagation()}
+        >
           <button type="button" className={styles.dropdownItem} onClick={handleLoginClick}>
             {isLoggedIn ? 'Log Out' : 'Log In'}
           </button>
