@@ -23,11 +23,16 @@ const postQuestion = async (caller: string, model: string, question: string) => 
 
 const CreatePostPage: React.FC = () => {
     const { isLoggedIn, user } = useAuth();
-    const [question, setQuestion] = useState('');
-    const { darkMode } = useDarkMode();
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
-    const [response, setResponse] = useState<string | null>(null);
+    const { darkMode } = useDarkMode();
+    const [question, setQuestion] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [response, setResponse] = useState<string>('');
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+
+    const handleSidebarToggle = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -37,23 +42,19 @@ const CreatePostPage: React.FC = () => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!user?.username) {
-            console.error('Username not found');
-            return;
-        }
-        
+        if (!user?.username) return;
+
         setLoading(true);
         try {
-            const response = await postQuestion(user.username, 'gpt-3.5-turbo', question);
-            if (response.ok) {
-                const data = await response.json();
-                setResponse(data.answer);
+            const res = await postQuestion(user.username, 'gpt-4', question);
+            if (res.ok) {
                 router.push('/');
             } else {
-                console.error('Failed to post question');
+                setResponse('Failed to post question. Please try again.');
             }
         } catch (error) {
             console.error('Error posting question:', error);
+            setResponse('An error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -61,7 +62,7 @@ const CreatePostPage: React.FC = () => {
 
     return (
         <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-            <Header />
+            <Header onSidebarToggle={handleSidebarToggle} />
             
             <div className={styles.createPostBox}>
                 <form onSubmit={handleSubmit} className={styles.createPostForm}>

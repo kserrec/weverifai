@@ -9,7 +9,11 @@ import { useAuth } from '@/store/auth';
 import { logOut } from "@/services/auth";
 import styles from "./Header.module.css";
 
-export default function Header(): JSX.Element {
+interface HeaderProps {
+  onSidebarToggle: () => void;
+}
+
+export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();
@@ -28,11 +32,21 @@ export default function Header(): JSX.Element {
   };
 
   const handleCreatePostClick = () => {
-    router.push("/post");
+    router.push('/post');
   };
 
   return (
     <header className={`${styles.header} ${darkMode ? styles.dark : ""}`}>
+      {!isLoginPage && (
+        <button 
+          className={styles.topicsMenuBtn}
+          onClick={onSidebarToggle}
+          aria-label="Toggle topics sidebar"
+        >
+          <FaBars />
+        </button>
+      )}
+      
       <Link href="/" className={styles.logo}>
         <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
       </Link>
