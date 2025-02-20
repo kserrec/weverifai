@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { getRecentQuestions, getTopQuestions, getHotQuestions, getSpicyQuestions, updateVote } from "@/services/questionService";
 import type { JSX } from "react";
 import type { QuestionResponse } from "@/services/questionService";
 import styles from "./home.module.css";
-import { FaUser, FaFilter } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { BiUpArrow, BiDownArrow, BiCaretDown } from "react-icons/bi";
 import { useDarkMode } from '@/store/darkMode';
 import { useAuth } from '@/store/auth';
@@ -42,7 +42,7 @@ export default function Home(): JSX.Element {
     };
   }, [filterOpen]);
 
-  const fetchPosts = async (filter: string) => {
+  const fetchPosts = useCallback(async (filter: string) => {
     try {
       setLoading(true);
       let recentPosts;
@@ -81,11 +81,11 @@ export default function Home(): JSX.Element {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.email]);
 
   useEffect(() => {
     void fetchPosts(currentFilter);
-  }, [user?.email, currentFilter]);
+  }, [currentFilter, fetchPosts]);
 
   const handleFilterClick = (filter: string) => {
     setCurrentFilter(filter);
