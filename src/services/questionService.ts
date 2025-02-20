@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, setDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import type { QuestionDoc } from './types';
 import { getOrCreateTopics, incrementTopicQuestionCounts } from './topicService';
 
@@ -11,7 +11,7 @@ export interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
     downvoters?: string[];
 }
 
-export const getRecentQuestions = async (postAmount: number, userId?: string): Promise<QuestionResponse[]> => {
+export const getRecentQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
     try {
         const querySnapshot = await getDocs(query(
             collection(db, 'questions'),
