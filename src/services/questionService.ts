@@ -1,13 +1,17 @@
 import { db } from '@/lib/firebase';
-import { addDoc, collection, getDocs, query, orderBy, limit, getDoc } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, orderBy, limit, getDoc, doc, updateDoc, increment, setDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import type { QuestionDoc } from './types';
 import { getOrCreateTopics, incrementTopicQuestionCounts } from './topicService';
 
 export interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
     topics: string[];
+    upvotes: number;
+    downvotes: number;
+    upvoters?: string[];
+    downvoters?: string[];
 }
 
-export const getRecentQuestions = async (postAmount: number): Promise<QuestionResponse[]> => {
+export const getRecentQuestions = async (postAmount: number, userId?: string): Promise<QuestionResponse[]> => {
     try {
         const querySnapshot = await getDocs(query(
             collection(db, 'questions'),
@@ -19,7 +23,7 @@ export const getRecentQuestions = async (postAmount: number): Promise<QuestionRe
         const questionsWithRefs = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
-        }) as QuestionDoc);
+        }) as QuestionDoc & { upvoters?: string[], downvoters?: string[] });
 
         // Fetch topic names for each question
         const questionsWithTopics = await Promise.all(
@@ -96,4 +100,30 @@ export const getAllQuestions = async (): Promise<QuestionResponse[]> => {
     );
 
     return questionsWithTopics;
+};
+
+export const updateVote = async (questionId: string, userId: string, voteType: 'upvote' | 'downvote', value: boolean) => {
+    try {
+        const questionRef = doc(db, 'questions', questionId);
+        const votersField = voteType === 'upvote' ? 'upvoters' : 'downvoters';
+        const countField = voteType === 'upvote' ? 'upvotes' : 'downvotes';
+
+        if (value) {
+            // Adding vote
+            await updateDoc(questionRef, {
+                [votersField]: arrayUnion(userId),
+                [countField]: increment(1)
+            });
+        } else {
+            // Removing vote
+            await updateDoc(questionRef, {
+                [votersField]: arrayRemove(userId),
+                [countField]: increment(-1)
+            });
+        }
+        return true;
+    } catch (error) {
+        console.error('Error updating vote:', error);
+        return false;
+    }
 };

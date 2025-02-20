@@ -639,40 +639,32 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   font-size: 1.25rem;
-  color: #999;
+  color: #007bff;
   transition: color 0.2s ease;
 }
 
 .dark .voteButton {
-  color: #666;
+  color: #3ea6ff;
 }
 
 .voteButton:hover {
-  color: #666;
+  color: #f36100;
 }
 
 .dark .voteButton:hover {
-  color: #999;
-}
-
-.voteButton.upvoted, .voteButton.downvoted {
-  color: #007bff;
-}
-
-.dark .voteButton.upvoted, .dark .voteButton.downvoted {
-  color: #3ea6ff;
+  color: #f36100;
 }
 
 .voteCount {
   min-width: 24px;
   text-align: center;
   font-weight: 500;
-  color: #999;
+  color: #666;
   font-size: 0.9rem;
 }
 
 .dark .voteCount {
-  color: #666;
+  color: #888;
 }
 
 .metaRight {
