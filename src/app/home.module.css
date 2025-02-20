@@ -150,7 +150,7 @@ input:checked + .slider:before {
   height: 100%;
   background: white;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  padding-top: 60px;
+  padding-top: 45px;
   transition: left 0.3s ease-in-out;
   z-index: 1000;
 }
@@ -579,13 +579,13 @@ input:checked + .slider:before {
 
 .pageContent {
   display: flex;
-  padding-top: 75px;
-  min-height: calc(100vh - 141px);
+  padding-top: 45px;
+  min-height: calc(100vh - 111px);
 }
 
 .mainContent {
   flex: 1;
-  padding: 0 2rem 2rem 2rem;
+  padding: 0 0 2rem 1rem;
 }
 
 /* Mobile styles */
@@ -599,8 +599,8 @@ input:checked + .slider:before {
   }
 
   .sidebar {
-    top: 24px;
-    height: calc(100vh - 24px);
+    top: 18px;
+    height: calc(100vh - 18px);
     left: -250px;
   }
 }

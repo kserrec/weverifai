@@ -1,8 +1,9 @@
 .sidebar {
     width: 200px;
     background-color: #ffffff;
-    padding: 0.5rem 0.125rem 0.5rem 1rem;
+    padding: 0.5rem 0.125rem 0.5rem 0.5rem;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .dark {
@@ -19,23 +20,23 @@
     font-size: 1rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
-    padding: 0 0.25rem;
-}
-
-.fireIcon {
-    color: #ff6b6b;
+    padding: 0 0.25rem 0 2.25rem;
 }
 
 .topicsList {
     list-style: none;
-    padding: 0;
+    padding: 1rem 0 0 0;
     margin: 0;
 }
 
 .topicItem {
-    padding: 0.25rem 0.125rem 0.25rem 0;
+    padding: 0.25rem 0.125rem 0.25rem 2.25rem;
     transition: background-color 0.2s ease;
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(200px - 2.5rem);
 }
 
 .topicItem:hover {
