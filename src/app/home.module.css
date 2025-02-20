@@ -601,7 +601,7 @@ input:checked + .slider:before {
     padding: 0 1rem 2rem 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
 
   .forum {
@@ -622,6 +622,10 @@ input:checked + .slider:before {
     top: 18px;
     height: calc(100vh - 18px);
     left: -250px;
+  }
+
+  .filterBar {
+    padding-left: 1rem;
   }
 }
 
