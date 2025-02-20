@@ -1,10 +1,8 @@
 .container {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  min-height: 100vh;
-  background: #ffffff;
+  background-color: #f8f9fa;
   color: #333;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: background 0.3s ease, color 0.3s ease;
@@ -20,8 +18,8 @@
 
 /* DARK MODE */
 .dark {
-  background: #181818;
-  color: #eee;
+  background-color: #121212;
+  color: #fff;
 }
 
 .header {
@@ -181,7 +179,7 @@ input:checked + .slider:before {
 }
 
 .forum {
-  margin-top: 100px;
+  margin-top: 0;
   text-align: center;
   width: 90%;
   max-width: 800px;
@@ -193,15 +191,15 @@ input:checked + .slider:before {
 }
 
 .posts {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-top: 24px;
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  padding-top: 1rem;
 }
 
 .post {
   background: white;
-  padding: 24px;
+  padding: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #eee;
   transition: all 0.2s ease;
@@ -223,10 +221,10 @@ input:checked + .slider:before {
 }
 
 .question {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 500;
   color: #1a1a1a;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   line-height: 1.4;
 }
 
@@ -237,10 +235,10 @@ input:checked + .slider:before {
 .answer {
   color: #444;
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 1rem;
-  padding-left: 16px;
-  border-left: 3px solid #007bff;
+  padding-left: 8px;
+  border-left: 2px solid #007bff;
 }
 
 .dark .answer {
@@ -251,8 +249,8 @@ input:checked + .slider:before {
 .postMeta {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-top: 16px;
+  gap: 8px;
+  padding-top: 8px;
   border-top: 1px solid #eee;
   color: #666;
   font-size: 0.85rem;
@@ -572,9 +570,37 @@ input:checked + .slider:before {
   }
 }
 
-@media (max-width: 390px ) {
+@media (max-width: 390px) {
   .logo {
     position: relative;
     left: 35%;
+  }
+}
+
+.pageContent {
+  display: flex;
+  padding-top: 75px;
+  min-height: calc(100vh - 141px);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 0 2rem 2rem 2rem;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .pageContent {
+    display: block;
+  }
+  
+  .mainContent {
+    padding: 1rem;
+  }
+
+  .sidebar {
+    top: 24px;
+    height: calc(100vh - 24px);
+    left: -250px;
   }
 }

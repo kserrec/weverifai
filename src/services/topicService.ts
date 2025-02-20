@@ -8,7 +8,9 @@ import {
     where, 
     addDoc,
     increment,
-    writeBatch
+    writeBatch,
+    orderBy,
+    limit
 } from 'firebase/firestore';
 
 export interface Topic {
@@ -70,4 +72,25 @@ export const incrementTopicQuestionCounts = async (topicRefs: DocumentReference[
     }
 
     await batch.commit();
+};
+
+// Get top topics by question count
+export const getTopTopics = async (limitCount: number = 10): Promise<Topic[]> => {
+    try {
+        const topicsCollection = collection(db, 'topics');
+        const topicsQuery = query(
+            topicsCollection,
+            orderBy('questionCount', 'desc'),
+            limit(limitCount)
+        );
+        
+        const querySnapshot = await getDocs(topicsQuery);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Topic));
+    } catch (error) {
+        console.error('Error fetching top topics:', error);
+        return [];
+    }
 }; 
