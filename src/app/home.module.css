@@ -181,8 +181,8 @@ input:checked + .slider:before {
 .forum {
   margin-top: 0;
   text-align: center;
-  width: 90%;
-  max-width: 800px;
+  width: calc(100% - 200px);
+  max-width: none;
 }
 
 .forumTitle {
@@ -603,6 +603,7 @@ input:checked + .slider:before {
   }
 
   .forum {
+    width: 100%;
     max-width: 100%;
   }
 

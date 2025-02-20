@@ -71,7 +71,7 @@
         height: calc(100vh - 45px);
         transform: translateX(-100%);
         width: 100%;
-        max-width: 200px;
+        max-width: 160px;
         z-index: 1000;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
@@ -82,6 +82,15 @@
 
     .sidebar.open {
         transform: translateX(0);
+    }
+
+    .sidebarTitle {
+        padding: 0 0.25rem 0 1rem;
+    }
+
+    .topicItem {
+        padding: 0.25rem 0.125rem 0.25rem 1rem;
+        max-width: calc(160px - 2rem);
     }
 }
 
