@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { getRecentQuestions, updateVote } from "@/services/questionService";
+import { getRecentQuestions, getTopQuestions, getHotQuestions, getSpicyQuestions, updateVote } from "@/services/questionService";
 import type { JSX } from "react";
 import type { QuestionResponse } from "@/services/questionService";
 import styles from "./home.module.css";
@@ -41,6 +41,51 @@ export default function Home(): JSX.Element {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [filterOpen]);
+
+  const fetchPosts = async (filter: string) => {
+    try {
+      setLoading(true);
+      let recentPosts;
+      
+      switch (filter) {
+        case 'Top':
+          recentPosts = await getTopQuestions(6);
+          break;
+        case 'Hot':
+          recentPosts = await getHotQuestions(6);
+          break;
+        case 'Spicy':
+          recentPosts = await getSpicyQuestions(6);
+          break;
+        default:
+          recentPosts = await getRecentQuestions(6);
+      }
+      
+      console.log('Fetched posts:', recentPosts);
+      
+      // Initialize voting states from the fetched data
+      if (user?.email) {
+        const initialVotingStates: Record<string, { upvoted: boolean; downvoted: boolean }> = {};
+        recentPosts.forEach(post => {
+          initialVotingStates[post.id] = {
+            upvoted: post.upvoters?.includes(user.email) || false,
+            downvoted: post.downvoters?.includes(user.email) || false
+          };
+        });
+        setVotingStates(initialVotingStates);
+      }
+      
+      setPosts(recentPosts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchPosts(currentFilter);
+  }, [user?.email, currentFilter]);
 
   const handleFilterClick = (filter: string) => {
     setCurrentFilter(filter);
@@ -106,36 +151,6 @@ export default function Home(): JSX.Element {
     // Update the vote in Firestore without waiting
     void updateVote(postId, user.email, voteType, !isRemovingVote);
   };
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        const recentPosts = await getRecentQuestions(6);
-        console.log('Fetched posts:', recentPosts);
-        
-        // Initialize voting states from the fetched data
-        if (user?.email) {
-          const initialVotingStates: Record<string, { upvoted: boolean; downvoted: boolean }> = {};
-          recentPosts.forEach(post => {
-            initialVotingStates[post.id] = {
-              upvoted: post.upvoters?.includes(user.email) || false,
-              downvoted: post.downvoters?.includes(user.email) || false
-            };
-          });
-          setVotingStates(initialVotingStates);
-        }
-        
-        setPosts(recentPosts);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchPosts();
-  }, [user?.email]);
 
   useEffect(() => {
     document.body.classList.toggle(styles.dark, darkMode);

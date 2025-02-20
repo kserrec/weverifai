@@ -767,3 +767,18 @@ input:checked + .slider:before {
   background: rgba(243, 97, 0, 0.1);
   color: #f36100;
 }
+
+.filterOption.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filterOption.disabled:hover {
+  background: none;
+  color: inherit;
+}
+
+.dark .filterOption.disabled:hover {
+  background: none;
+  color: inherit;
+}
