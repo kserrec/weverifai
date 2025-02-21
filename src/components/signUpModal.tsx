@@ -102,7 +102,6 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, darkMode }) 
         <button className={styles.closeButton} onClick={onClose}>
           &times;
         </button>
-        <h2>Sign Up</h2>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <form onSubmit={handleSubmit}>

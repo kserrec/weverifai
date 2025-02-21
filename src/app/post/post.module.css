@@ -144,67 +144,11 @@ input:checked + .slider:before {
     color: #3ea6ff;
 }
 
-.sidebar {
-    position: fixed;
-    left: -250px;
-    top: 0;
-    width: 250px;
-    height: 100%;
-    background: white;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    padding-top: 60px;
-    transition: left 0.3s ease-in-out;
-    z-index: 1000;
-}
-
-.dark .sidebar {
-    background: #222;
-}
-
-.sidebar.open {
-    left: 0;
-}
-
-.closeButton {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #555;
-    position: absolute;
-    top: 15px;
-    right: 15px;
-}
-
-.dark .closeButton {
-    color: #bbb;
-}
-
-.hero {
-    margin-top: 100px;
-    text-align: center;
-    width: 90%;
-    max-width: 800px;
-}
-
-.heroTitle {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #222;
-}
-
-.dark .heroTitle {
-    color: #eee;
-}
-
-.heroSubtitle {
-    font-size: 1.2rem;
-    color: #666;
-    margin-top: 10px;
-}
-
-.dark .heroSubtitle {
-    color: #bbb;
+.pageContent {
+    display: flex;
+    padding-top: 61px;
+    width: 100%;
+    justify-content: center;
 }
 
 .createPostBox {
@@ -213,9 +157,10 @@ input:checked + .slider:before {
     width: 90%;
     max-width: 800px;
     transition: background 0.3s ease, box-shadow 0.3s ease;
-    margin-top: 100px;
+    margin: 20px auto;
     padding: 20px;
     border: 1px solid #eee;
+    height: fit-content;
 }
 
 .container.dark .createPostBox {
@@ -228,6 +173,7 @@ input:checked + .slider:before {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 0;
 }
 
 .inputField {
@@ -238,6 +184,11 @@ input:checked + .slider:before {
     background: #fff;
     color: #333;
     transition: border-color 0.3s ease;
+    margin: 0;
+    min-height: 100px;
+    max-height: 80vh;
+    resize: none;
+    overflow-y: auto;
 }
 
 .container.dark .inputField {
@@ -259,6 +210,7 @@ input:checked + .slider:before {
     font-size: 1rem;
     cursor: pointer;
     transition: background 0.3s ease;
+    margin: 0;
 }
 
 .container.dark .submitButton {
@@ -430,13 +382,33 @@ input:checked + .slider:before {
     }
 }
 
+@media (max-width: 768px) {
+    .pageContent {
+        display: block;
+        padding: 15px;
+        width: 100%;
+        min-height: calc(100vh - 111px);
+    }
+
+    .createPostBox {
+        width: 95%;
+        margin: 20px auto;
+        padding: 15px;
+        height: auto;
+    }
+
+    .inputField {
+        max-height: 60vh;
+    }
+}
+
 .loading {
     color: #007bff;
-    margin: 10px 0;
+    margin: 10px 0 0 0;
 }
 
 .response {
-    margin: 15px 0;
+    margin: 10px 0 0 0;
     padding: 15px;
     background: rgba(0,123,255,0.1);
     border-radius: 8px;
