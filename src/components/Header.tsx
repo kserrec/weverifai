@@ -45,6 +45,7 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
   const handleLoginClick = async () => {
     if (isLoggedIn) {
       await logOut();
+      setDropdownOpen(false);
       return;
     } else {
       router.push('/login');
