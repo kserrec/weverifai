@@ -23,7 +23,7 @@ const postQuestion = async (caller: string, model: string, question: string) => 
 };
 
 const CreatePostPage: React.FC = () => {
-    const { isLoggedIn, user } = useAuth();
+    const { user, isLoading } = useAuth();
     const router = useRouter();
     const { darkMode } = useDarkMode();
     const [question, setQuestion] = useState<string>('');
@@ -60,12 +60,6 @@ const CreatePostPage: React.FC = () => {
         setSidebarOpen(!sidebarOpen);
     };
 
-    useEffect(() => {
-        if (!isLoggedIn) {
-            router.push('/login');
-        }
-    }, [isLoggedIn, router]);
-
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!user?.username) return;
@@ -89,6 +83,20 @@ const CreatePostPage: React.FC = () => {
     const handleQuestionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setQuestion(e.target.value);
     };
+
+    // Show loading state while auth is being determined
+    if (isLoading) {
+        return (
+            <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
+                <Header onSidebarToggle={handleSidebarToggle} />
+                <div className={styles.pageContent}>
+                    <div className={styles.createPostBox}>
+                        <div className={styles.loading}>Loading...</div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
