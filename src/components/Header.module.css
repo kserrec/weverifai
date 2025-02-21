@@ -271,9 +271,10 @@ input:checked + .slider:before {
   }
 
   .logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    left: 0;
+    transform: none;
+    margin-left: 10px;
     font-size: 1.5rem;
     z-index: 1;
   }
