@@ -6,6 +6,7 @@ import styles from './post.module.css';
 import { useAuth } from '@/store/auth';
 import { useDarkMode } from '@/store/darkMode';
 import Header from "@/components/Header";
+import TopicsSidebar from "@/components/TopicsSidebar";
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -64,25 +65,31 @@ const CreatePostPage: React.FC = () => {
         <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
             <Header onSidebarToggle={handleSidebarToggle} />
             
-            <div className={styles.createPostBox}>
-                <form onSubmit={handleSubmit} className={styles.createPostForm}>
-                    <textarea
-                        className={styles.inputField}
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        placeholder="Ask your question..."
-                        required
-                    />
-                    <button 
-                        type="submit" 
-                        className={styles.submitButton}
-                        disabled={loading || !user?.username}
-                    >
-                        {loading ? 'Posting...' : 'Post Question'}
-                    </button>
-                </form>
-                {loading && <div className={styles.loading}>Posting your question...</div>}
-                {response && <div className={styles.response}>{response}</div>}
+            <div className={styles.pageContent}>
+                <TopicsSidebar 
+                    isOpen={sidebarOpen} 
+                    onClose={() => setSidebarOpen(false)} 
+                />
+                <div className={styles.createPostBox}>
+                    <form onSubmit={handleSubmit} className={styles.createPostForm}>
+                        <textarea
+                            className={styles.inputField}
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            placeholder="Ask your question..."
+                            required
+                        />
+                        <button 
+                            type="submit" 
+                            className={styles.submitButton}
+                            disabled={loading || !user?.username}
+                        >
+                            {loading ? 'Posting...' : 'Post Question'}
+                        </button>
+                    </form>
+                    {loading && <div className={styles.loading}>Posting your question...</div>}
+                    {response && <div className={styles.response}>{response}</div>}
+                </div>
             </div>
         </div>
     );
