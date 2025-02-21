@@ -17,10 +17,12 @@ export default function TopicsSidebar({ isOpen, onClose }: TopicsSidebarProps) {
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             // Only handle click-outside on mobile
+            const topicsMenuBtn = document.querySelector('.topicsMenuBtn');
             if (window.innerWidth <= 768 && 
                 isOpen && 
                 sidebarRef.current && 
-                !sidebarRef.current.contains(event.target as Node)) {
+                !sidebarRef.current.contains(event.target as Node) &&
+                !topicsMenuBtn?.contains(event.target as Node)) {
                 onClose();
             }
         };

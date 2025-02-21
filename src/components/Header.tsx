@@ -59,7 +59,7 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
     <header className={`${styles.header} ${darkMode ? styles.dark : ""}`}>
       {!isLoginPage && (
         <button 
-          className={styles.topicsMenuBtn}
+          className={`${styles.topicsMenuBtn} topicsMenuBtn`}
           onClick={onSidebarToggle}
           aria-label="Toggle topics sidebar"
         >
@@ -87,6 +87,7 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
           {!isLoginPage && (
             <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
               <FaPlus /> <span className={styles.createPostText}>Ask AI</span>
+              <span className={styles.createPostTextMobile}>Ask</span>
             </button>
           )}
         </div>
