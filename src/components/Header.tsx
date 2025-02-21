@@ -16,7 +16,7 @@ interface HeaderProps {
 export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
   const router = useRouter();
   const pathname = usePathname();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading } = useAuth();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -53,7 +53,21 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
   };
 
   const handleCreatePostClick = () => {
+    if (isLoading) return;
+
+    // Start navigation
     router.push('/post');
+
+    // Set up safety net for navigation
+    const navigationTimeout = setTimeout(() => {
+      if (window.location.pathname !== '/post') {
+        // If we're not on the post page after timeout, force navigate
+        window.location.href = '/post';
+      }
+    }, 1000); // Increased timeout to give router.push more time
+
+    // Clean up timeout if component unmounts
+    return () => clearTimeout(navigationTimeout);
   };
 
   return (
