@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "WeVerifAI",
   description: "Trust, but VerifAI",
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover"
 };
 
 export default function RootLayout({
