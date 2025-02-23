@@ -9,6 +9,42 @@ import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
 import { BiCaretDown } from 'react-icons/bi';
 
+interface ModelConfig {
+    modelName: string;
+    displayName: string;
+}
+
+const AVAILABLE_MODELS: ModelConfig[] = [
+    {
+        modelName: 'gpt-3.5-turbo',
+        displayName: 'GPT-3.5-TURBO'
+    },
+    {
+        modelName: 'gpt-4',
+        displayName: 'GPT-4'
+    },
+    {
+        modelName: 'claude-3',
+        displayName: 'CLAUDE-3'
+    }
+];
+
+const generateModelOptions = (
+    models: ModelConfig[],
+    selectedModel: string,
+    onModelClick: (model: string) => void
+) => {
+    return models.map((model) => (
+        <div 
+            key={model.modelName}
+            className={`${styles.filterOption} ${selectedModel === model.modelName ? styles.selected : ''}`}
+            onClick={() => onModelClick(model.modelName)}
+        >
+            {model.displayName}
+        </div>
+    ));
+};
+
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
         method: 'POST',
@@ -33,7 +69,7 @@ const CreatePostPage: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [modelDropdownOpen, setModelDropdownOpen] = useState<boolean>(false);
-    const [selectedModel, setSelectedModel] = useState<string>('gpt-3.5-turbo');
+    const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].modelName);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const modelDropdownRef = useRef<HTMLDivElement>(null);
     const modelButtonRef = useRef<HTMLButtonElement>(null);
@@ -139,7 +175,7 @@ const CreatePostPage: React.FC = () => {
                             className={styles.filterButton}
                             onClick={() => setModelDropdownOpen(!modelDropdownOpen)}
                         >
-                            {selectedModel.toUpperCase()} <BiCaretDown />
+                            {AVAILABLE_MODELS.find(m => m.modelName === selectedModel)?.displayName || selectedModel.toUpperCase()} <BiCaretDown />
                         </button>
                         {modelDropdownOpen && (
                             <div 
@@ -147,24 +183,7 @@ const CreatePostPage: React.FC = () => {
                                 className={styles.filterDropdown}
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <div 
-                                    className={`${styles.filterOption} ${selectedModel === 'gpt-3.5-turbo' ? styles.selected : ''}`}
-                                    onClick={() => handleModelClick('gpt-3.5-turbo')}
-                                >
-                                    GPT-3.5-TURBO
-                                </div>
-                                <div 
-                                    className={`${styles.filterOption} ${selectedModel === 'gpt-4' ? styles.selected : ''}`}
-                                    onClick={() => handleModelClick('gpt-4')}
-                                >
-                                    GPT-4
-                                </div>
-                                <div 
-                                    className={`${styles.filterOption} ${selectedModel === 'claude-3' ? styles.selected : ''}`}
-                                    onClick={() => handleModelClick('claude-3')}
-                                >
-                                    CLAUDE-3
-                                </div>
+                                {generateModelOptions(AVAILABLE_MODELS, selectedModel, handleModelClick)}
                             </div>
                         )}
                     </div>
@@ -175,7 +194,7 @@ const CreatePostPage: React.FC = () => {
                                 className={styles.inputField}
                                 value={question}
                                 onChange={handleQuestionChange}
-                                placeholder={`Ask ${selectedModel.toUpperCase()} anything...`}
+                                placeholder={`Ask ${AVAILABLE_MODELS.find(m => m.modelName === selectedModel)?.displayName || selectedModel.toUpperCase()} anything...`}
                                 required
                             />
                             <button 
