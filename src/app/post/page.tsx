@@ -7,6 +7,43 @@ import { useAuth } from '@/store/auth';
 import { useDarkMode } from '@/store/darkMode';
 import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
+import { BiCaretDown } from 'react-icons/bi';
+
+interface ModelConfig {
+    modelName: string;
+    displayName: string;
+}
+
+const AVAILABLE_MODELS: ModelConfig[] = [
+    {
+        modelName: 'gpt-3.5-turbo',
+        displayName: 'GPT-3.5-TURBO'
+    },
+    {
+        modelName: 'gpt-4',
+        displayName: 'GPT-4'
+    },
+    {
+        modelName: 'claude-3',
+        displayName: 'CLAUDE-3'
+    }
+];
+
+const generateModelOptions = (
+    models: ModelConfig[],
+    selectedModel: string,
+    onModelClick: (model: string) => void
+) => {
+    return models.map((model) => (
+        <div 
+            key={model.modelName}
+            className={`${styles.filterOption} ${selectedModel === model.modelName ? styles.selected : ''}`}
+            onClick={() => onModelClick(model.modelName)}
+        >
+            {model.displayName}
+        </div>
+    ));
+};
 
 const postQuestion = async (caller: string, model: string, question: string) => {
     return await fetch('/api/question', {
@@ -31,7 +68,11 @@ const CreatePostPage: React.FC = () => {
     const [response, setResponse] = useState<string>('');
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [modelDropdownOpen, setModelDropdownOpen] = useState<boolean>(false);
+    const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].modelName);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const modelDropdownRef = useRef<HTMLDivElement>(null);
+    const modelButtonRef = useRef<HTMLButtonElement>(null);
 
     const adjustTextareaHeight = () => {
         const textarea = textareaRef.current;
@@ -56,8 +97,26 @@ const CreatePostPage: React.FC = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (modelDropdownRef.current && 
+                !modelDropdownRef.current.contains(event.target as Node) &&
+                !modelButtonRef.current?.contains(event.target as Node)) {
+                setModelDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const handleSidebarToggle = () => {
         setSidebarOpen(!sidebarOpen);
+    };
+
+    const handleModelClick = (model: string) => {
+        setSelectedModel(model);
+        setModelDropdownOpen(false);
     };
 
     const handleSubmit = async (e: FormEvent) => {
@@ -66,7 +125,7 @@ const CreatePostPage: React.FC = () => {
 
         setLoading(true);
         try {
-            const res = await postQuestion(user.username, 'gpt-3.5-turbo', question);
+            const res = await postQuestion(user.username, selectedModel, question);
             if (res.ok) {
                 router.push('/');
             } else {
@@ -109,26 +168,46 @@ const CreatePostPage: React.FC = () => {
                         onClose={() => setSidebarOpen(false)} 
                     />
                 )}
-                <div className={styles.createPostBox}>
-                    <form onSubmit={handleSubmit} className={styles.createPostForm}>
-                        <textarea
-                            ref={textareaRef}
-                            className={styles.inputField}
-                            value={question}
-                            onChange={handleQuestionChange}
-                            placeholder="Ask your question..."
-                            required
-                        />
+                <div className={styles.mainContent}>
+                    <div className={styles.filterBar}>
                         <button 
-                            type="submit" 
-                            className={styles.submitButton}
-                            disabled={loading || !user?.username}
+                            ref={modelButtonRef}
+                            className={styles.filterButton}
+                            onClick={() => setModelDropdownOpen(!modelDropdownOpen)}
                         >
-                            {loading ? 'Posting...' : 'Post Question'}
+                            {AVAILABLE_MODELS.find(m => m.modelName === selectedModel)?.displayName || selectedModel.toUpperCase()} <BiCaretDown />
                         </button>
-                    </form>
-                    {loading && <div className={styles.loading}>Posting your question...</div>}
-                    {response && <div className={styles.response}>{response}</div>}
+                        {modelDropdownOpen && (
+                            <div 
+                                ref={modelDropdownRef}
+                                className={styles.filterDropdown}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {generateModelOptions(AVAILABLE_MODELS, selectedModel, handleModelClick)}
+                            </div>
+                        )}
+                    </div>
+                    <div className={styles.createPostBox}>
+                        <form onSubmit={handleSubmit} className={styles.createPostForm}>
+                            <textarea
+                                ref={textareaRef}
+                                className={styles.inputField}
+                                value={question}
+                                onChange={handleQuestionChange}
+                                placeholder={`Ask ${AVAILABLE_MODELS.find(m => m.modelName === selectedModel)?.displayName || selectedModel.toUpperCase()} anything...`}
+                                required
+                            />
+                            <button 
+                                type="submit" 
+                                className={styles.submitButton}
+                                disabled={loading || !user?.username}
+                            >
+                                {loading ? 'Posting...' : 'Post'}
+                            </button>
+                        </form>
+                        {loading && <div className={styles.loading}>Posting your question...</div>}
+                        {response && <div className={styles.response}>{response}</div>}
+                    </div>
                 </div>
             </div>
         </div>
