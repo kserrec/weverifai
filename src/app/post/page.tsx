@@ -175,7 +175,7 @@ const CreatePostPage: React.FC = () => {
                                 className={styles.inputField}
                                 value={question}
                                 onChange={handleQuestionChange}
-                                placeholder="Ask your question..."
+                                placeholder={`Ask ${selectedModel.toUpperCase()} anything...`}
                                 required
                             />
                             <button 
@@ -183,7 +183,7 @@ const CreatePostPage: React.FC = () => {
                                 className={styles.submitButton}
                                 disabled={loading || !user?.username}
                             >
-                                {loading ? 'Posting...' : 'Post Question'}
+                                {loading ? 'Posting...' : 'Post'}
                             </button>
                         </form>
                         {loading && <div className={styles.loading}>Posting your question...</div>}
