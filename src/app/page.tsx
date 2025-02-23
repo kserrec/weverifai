@@ -12,6 +12,13 @@ import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 
+const AVAILABLE_MODELS = [
+  { modelName: 'all', displayName: 'ALL MODELS' },
+  { modelName: 'gpt-3.5-turbo', displayName: 'GPT-3.5-TURBO' },
+  { modelName: 'gpt-4', displayName: 'GPT-4' },
+  { modelName: 'claude-3', displayName: 'CLAUDE-3' }
+];
+
 export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
   const { isLoggedIn, user } = useAuth();
@@ -19,11 +26,15 @@ export default function Home(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
+  const [modelFilterOpen, setModelFilterOpen] = useState<boolean>(false);
   const [currentFilter, setCurrentFilter] = useState<string>('New');
+  const [currentModel, setCurrentModel] = useState<string>('all');
   const lastDocRef = useRef<QueryDocumentSnapshot | null>(null);
   const hasMoreRef = useRef<boolean>(true);
   const filterRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const modelFilterRef = useRef<HTMLDivElement>(null);
+  const modelButtonRef = useRef<HTMLButtonElement>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
   const [votingStates, setVotingStates] = useState<Record<string, { upvoted: boolean; downvoted: boolean }>>({});
   const fetchingRef = useRef<boolean>(false);
@@ -108,13 +119,18 @@ export default function Home(): JSX.Element {
     return () => observer.disconnect();
   }, [currentFilter, fetchPosts, loading]);
 
-  // Click outside handler
+  // Click outside handler for both dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (filterOpen && 
           !buttonRef.current?.contains(event.target as Node) && 
           !filterRef.current?.contains(event.target as Node)) {
         setFilterOpen(false);
+      }
+      if (modelFilterOpen && 
+          !modelButtonRef.current?.contains(event.target as Node) && 
+          !modelFilterRef.current?.contains(event.target as Node)) {
+        setModelFilterOpen(false);
       }
     };
 
@@ -125,7 +141,7 @@ export default function Home(): JSX.Element {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [filterOpen]);
+  }, [filterOpen, modelFilterOpen]);
 
   const handleFilterClick = (filter: string) => {
     if (filter === currentFilter) return;
@@ -200,6 +216,19 @@ export default function Home(): JSX.Element {
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setFilterOpen(!filterOpen);
+    setModelFilterOpen(false);
+  };
+
+  const handleModelButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setModelFilterOpen(!modelFilterOpen);
+    setFilterOpen(false);
+  };
+
+  const handleModelClick = (modelName: string) => {
+    if (modelName === currentModel) return;
+    setCurrentModel(modelName);
+    setModelFilterOpen(false);
   };
 
   return (
@@ -213,45 +242,73 @@ export default function Home(): JSX.Element {
         />
         <main className={styles.mainContent}>
           <div className={styles.filterBar}>
-            <button 
-              ref={buttonRef}
-              className={styles.filterButton}
-              onClick={handleButtonClick}
-            >
-              {currentFilter.toUpperCase()} POSTS <BiCaretDown />
-            </button>
-            {filterOpen && (
-              <div 
-                ref={filterRef}
-                className={styles.filterDropdown}
-                onClick={(e) => e.stopPropagation()}
+            <div style={{ position: 'relative' }}>
+              <button 
+                ref={buttonRef}
+                className={styles.filterButton}
+                onClick={handleButtonClick}
               >
+                {currentFilter.toUpperCase()} POSTS <BiCaretDown />
+              </button>
+              {filterOpen && (
                 <div 
-                  className={`${styles.filterOption} ${currentFilter === 'New' ? styles.selected : ''}`}
-                  onClick={() => handleFilterClick('New')}
+                  ref={filterRef}
+                  className={styles.filterDropdown}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  New
+                  <div 
+                    className={`${styles.filterOption} ${currentFilter === 'New' ? styles.selected : ''}`}
+                    onClick={() => handleFilterClick('New')}
+                  >
+                    New
+                  </div>
+                  <div 
+                    className={`${styles.filterOption} ${currentFilter === 'Top' ? styles.selected : ''}`}
+                    onClick={() => handleFilterClick('Top')}
+                  >
+                    Top
+                  </div>
+                  <div 
+                    className={`${styles.filterOption} ${currentFilter === 'Hot' ? styles.selected : ''}`}
+                    onClick={() => handleFilterClick('Hot')}
+                  >
+                    Hot
+                  </div>
+                  <div 
+                    className={`${styles.filterOption} ${currentFilter === 'Spicy' ? styles.selected : ''}`}
+                    onClick={() => handleFilterClick('Spicy')}
+                  >
+                    Spicy
+                  </div>
                 </div>
+              )}
+            </div>
+            <div style={{ position: 'relative' }}>
+              <button 
+                ref={modelButtonRef}
+                className={styles.filterButton}
+                onClick={handleModelButtonClick}
+              >
+                {AVAILABLE_MODELS.find(m => m.modelName === currentModel)?.displayName || 'ALL'} <BiCaretDown />
+              </button>
+              {modelFilterOpen && (
                 <div 
-                  className={`${styles.filterOption} ${currentFilter === 'Top' ? styles.selected : ''}`}
-                  onClick={() => handleFilterClick('Top')}
+                  ref={modelFilterRef}
+                  className={styles.filterDropdown}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  Top
+                  {AVAILABLE_MODELS.map((model) => (
+                    <div 
+                      key={model.modelName}
+                      className={`${styles.filterOption} ${currentModel === model.modelName ? styles.selected : ''}`}
+                      onClick={() => handleModelClick(model.modelName)}
+                    >
+                      {model.displayName}
+                    </div>
+                  ))}
                 </div>
-                <div 
-                  className={`${styles.filterOption} ${currentFilter === 'Hot' ? styles.selected : ''}`}
-                  onClick={() => handleFilterClick('Hot')}
-                >
-                  Hot
-                </div>
-                <div 
-                  className={`${styles.filterOption} ${currentFilter === 'Spicy' ? styles.selected : ''}`}
-                  onClick={() => handleFilterClick('Spicy')}
-                >
-                  Spicy
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <section className={styles.forum}>
             {loading && posts.length === 0 ? (

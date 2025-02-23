@@ -640,6 +640,7 @@ input:checked + .slider:before {
 .filterBar {
   display: flex;
   align-items: center;
+  gap: 8px;
   padding: 0;
   position: relative;
   margin-bottom: 1rem;
@@ -658,6 +659,8 @@ input:checked + .slider:before {
   cursor: pointer;
   transition: all 0.2s ease;
   justify-content: space-between;
+  min-width: 140px;
+  position: relative;
 }
 
 .filterButton svg {
@@ -683,14 +686,15 @@ input:checked + .slider:before {
 
 .filterDropdown {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 4px);
   background: #ffffff;
   border: 1px solid #eee;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 180px;
   z-index: 10;
+  left: 0;
+  right: 0;
 }
 
 .dark .filterDropdown {
