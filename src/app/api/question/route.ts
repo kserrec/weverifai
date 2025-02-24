@@ -1,41 +1,53 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { addNewQuestionDoc, getAllQuestions } from '@/services/questionService';
-import { askModelWithRetries, ModelError } from '@/app/api/lib/models';
-import { reformatQuestion } from '@/helpers/models';
+import { askModel } from '@/app/api/lib/models';
+
+const getTopicsFromAI = async (question: string, modelResponse: string): Promise<string[]> => {
+    const topicsPrompt = `Given the following question and its answer, provide exactly 3 keywords that best represent the main topics. Return only the 3 keywords separated by commas, nothing else.
+
+    Question: ${question}
+    Answer: ${modelResponse}`;
+
+    const topicsResponse = await askModel('gpt-4o-mini', topicsPrompt);
+    if (!topicsResponse) return [];
+
+    return topicsResponse.split(',').map(topic => topic.trim());
+};
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
     try {
         // 1. Get request variables
         const { caller, model, question } = await req.json();
 
-        // 2. Ask model question with retry logic for proper formatting
+        // 2. Ask model question
         try {
-            const modelResponse = await askModelWithRetries(model, reformatQuestion(question));
-            
-            // 3. Add question with response and metadata to questions collection
-            await addNewQuestionDoc(
-                modelResponse.answer,
-                modelResponse.topics,
-                caller,
-                model,
-                question
-            );
-
-            // 4. Return only the answer to the user
-            return NextResponse.json({ answer: modelResponse.answer });
-        } catch (error) {
-            if (error instanceof ModelError) {
-                console.error(`Model error for ${error.modelName}: ${error.message}`);
-                if (error.cause) {
-                    console.error('Caused by:', error.cause);
-                }
-                return NextResponse.json(
-                    { error: error.message },
-                    { status: 500 }
-                );
+            const modelResponse = await askModel(model, question);
+            if (!modelResponse) {
+                throw new Error('No response from model');
             }
-            throw error; // Re-throw unexpected errors
+
+            // 3. Immediately return the answer for UI update
+            const response = NextResponse.json({ answer: modelResponse });
+
+            // 4. Asynchronously handle topic generation and database update
+            getTopicsFromAI(question, modelResponse)
+                .then(topics => {
+                    return addNewQuestionDoc(
+                        modelResponse,
+                        topics,
+                        caller,
+                        model,
+                        question
+                    );
+                })
+                .catch(error => {
+                    console.error('Error in background processing:', error);
+                });
+
+            return response;
+        } catch (error) {
+            throw error;
         }
     } catch (error) {
         console.error('Error in POST /api/ask:', error);
