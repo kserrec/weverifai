@@ -61,14 +61,14 @@ export default function Login(): JSX.Element {
 
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>
-          <span className={styles.accent2}>We</span>Verif
-          <span className={styles.accent}>AI</span>
+          <span className={styles.accent2}>ask</span>
+          <span className={styles.accent}>Large</span>
         </h1>
         <p className={styles.heroSubtitle}>
           <span className={styles.accent}>AI</span> Answers - <span className={styles.accent2}>You</span> Respond
         </p>
         <p className={styles.heroSubtitle}>
-          Join a collaborative hub shaping a new library of knowledge.
+          Join a collaborative hub shaping a new library of knowledge
         </p>
       </section>
 

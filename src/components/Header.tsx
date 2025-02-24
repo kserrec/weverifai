@@ -83,7 +83,7 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
       )}
       
       <Link href="/" className={styles.logo}>
-        <span className={styles.accent2}>We</span>Verif<span className={styles.accent}>AI</span>
+        <span className={styles.accent2}>ask</span><span className={styles.accent}>Large</span>
       </Link>
 
       <div className={styles.navright}>
