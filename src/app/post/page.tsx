@@ -8,41 +8,24 @@ import { useDarkMode } from '@/store/darkMode';
 import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
 import { BiCaretDown } from 'react-icons/bi';
-
-interface ModelConfig {
-    modelName: string;
-    displayName: string;
-}
-
-const AVAILABLE_MODELS: ModelConfig[] = [
-    {
-        modelName: 'gpt-3.5-turbo',
-        displayName: 'GPT-3.5-TURBO'
-    },
-    {
-        modelName: 'gpt-4',
-        displayName: 'GPT-4'
-    },
-    {
-        modelName: 'claude-3',
-        displayName: 'CLAUDE-3'
-    }
-];
+import { AVAILABLE_MODELS, type ModelConfig } from '@/lib/constants';
 
 const generateModelOptions = (
     models: ModelConfig[],
     selectedModel: string,
     onModelClick: (model: string) => void
 ) => {
-    return models.map((model) => (
-        <div 
-            key={model.modelName}
-            className={`${styles.filterOption} ${selectedModel === model.modelName ? styles.selected : ''}`}
-            onClick={() => onModelClick(model.modelName)}
-        >
-            {model.displayName}
-        </div>
-    ));
+    return models
+        .filter(model => model.modelName !== 'all')
+        .map((model) => (
+            <div 
+                key={model.modelName}
+                className={`${styles.filterOption} ${selectedModel === model.modelName ? styles.selected : ''}`}
+                onClick={() => onModelClick(model.modelName)}
+            >
+                {model.displayName}
+            </div>
+        ));
 };
 
 const postQuestion = async (caller: string, model: string, question: string) => {
@@ -69,7 +52,7 @@ const CreatePostPage: React.FC = () => {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const [modelDropdownOpen, setModelDropdownOpen] = useState<boolean>(false);
-    const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].modelName);
+    const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS.filter(m => m.modelName !== 'all')[0].modelName);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const modelDropdownRef = useRef<HTMLDivElement>(null);
     const modelButtonRef = useRef<HTMLButtonElement>(null);

@@ -15,13 +15,18 @@ export interface QuestionResponse extends Omit<QuestionDoc, 'topicRefs'> {
 
 export const getRecentQuestions = async (
     postAmount: number,
-    lastDoc?: QueryDocumentSnapshot
+    lastDoc?: QueryDocumentSnapshot,
+    modelFilter?: string
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        const queryConstraints: QueryConstraint[] = [
-            orderBy('createdAt', 'desc'),
-            limit(postAmount)
-        ];
+        const queryConstraints: QueryConstraint[] = [];
+
+        if (modelFilter) {
+            queryConstraints.push(where('model', '==', modelFilter));
+        }
+        
+        queryConstraints.push(orderBy('createdAt', 'desc'));
+        queryConstraints.push(limit(postAmount));
 
         if (lastDoc) {
             queryConstraints.push(startAfter(lastDoc));
@@ -66,13 +71,18 @@ export const getRecentQuestions = async (
 
 export const getTopQuestions = async (
     postAmount: number,
-    lastDoc?: QueryDocumentSnapshot
+    lastDoc?: QueryDocumentSnapshot,
+    modelFilter?: string
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        const queryConstraints: QueryConstraint[] = [
-            orderBy('upvotes', 'desc'),
-            limit(postAmount)
-        ];
+        const queryConstraints: QueryConstraint[] = [];
+
+        if (modelFilter) {
+            queryConstraints.push(where('model', '==', modelFilter));
+        }
+        
+        queryConstraints.push(orderBy('upvotes', 'desc'));
+        queryConstraints.push(limit(postAmount));
 
         if (lastDoc) {
             queryConstraints.push(startAfter(lastDoc));
@@ -117,18 +127,24 @@ export const getTopQuestions = async (
 
 export const getHotQuestions = async (
     postAmount: number,
-    lastDoc?: QueryDocumentSnapshot
+    lastDoc?: QueryDocumentSnapshot,
+    modelFilter?: string
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
         // Calculate timestamp for 2 days ago
         const twoDaysAgo = Date.now() - (2 * 24 * 60 * 60 * 1000);
 
         const queryConstraints: QueryConstraint[] = [
-            where('createdAt', '>=', twoDaysAgo),
-            orderBy('createdAt', 'desc'),
-            orderBy('upvotes', 'desc'),
-            limit(postAmount)
+            where('createdAt', '>=', twoDaysAgo)
         ];
+
+        if (modelFilter) {
+            queryConstraints.push(where('model', '==', modelFilter));
+        }
+
+        queryConstraints.push(orderBy('upvotes', 'desc'));
+        queryConstraints.push(orderBy('createdAt', 'desc'));
+        queryConstraints.push(limit(postAmount));
 
         if (lastDoc) {
             queryConstraints.push(startAfter(lastDoc));
@@ -173,14 +189,19 @@ export const getHotQuestions = async (
 
 export const getSpicyQuestions = async (
     postAmount: number,
-    lastDoc?: QueryDocumentSnapshot
+    lastDoc?: QueryDocumentSnapshot,
+    modelFilter?: string
 ): Promise<{ questions: QuestionResponse[]; lastDoc: QueryDocumentSnapshot | null }> => {
     try {
-        const queryConstraints: QueryConstraint[] = [
-            orderBy('spicyScore', 'desc'),
-            orderBy('createdAt', 'desc'),
-            limit(postAmount)
-        ];
+        const queryConstraints: QueryConstraint[] = [];
+
+        if (modelFilter) {
+            queryConstraints.push(where('model', '==', modelFilter));
+        }
+        
+        queryConstraints.push(orderBy('spicyScore', 'desc'));
+        queryConstraints.push(orderBy('createdAt', 'desc'));
+        queryConstraints.push(limit(postAmount));
 
         if (lastDoc) {
             queryConstraints.push(startAfter(lastDoc));
