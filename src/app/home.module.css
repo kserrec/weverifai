@@ -691,10 +691,9 @@ input:checked + .slider:before {
   border: 1px solid #eee;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-width: 180px;
+  width: 140px;
   z-index: 10;
   left: 0;
-  right: 0;
 }
 
 .dark .filterDropdown {

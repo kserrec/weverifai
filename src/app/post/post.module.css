@@ -483,7 +483,7 @@ input:checked + .slider:before {
     border: 1px solid #eee;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-width: 180px;
+    width: 140px;
     z-index: 10;
 }
 
@@ -498,17 +498,10 @@ input:checked + .slider:before {
     color: #555;
     cursor: pointer;
     transition: all 0.2s ease;
-}
-
-.filterOption.selected {
-    background: rgba(0, 123, 255, 0.1);
-    color: #007bff;
-    font-weight: 500;
-}
-
-.dark .filterOption.selected {
-    background: rgba(243, 97, 0, 0.1);
-    color: #f36100;
+    text-align: left;
+    display: block;
+    width: 100%;
+    padding-left: 0.75rem;
 }
 
 .dark .filterOption {
@@ -521,6 +514,17 @@ input:checked + .slider:before {
 }
 
 .dark .filterOption:hover {
+    background: rgba(243, 97, 0, 0.1);
+    color: #f36100;
+}
+
+.filterOption.selected {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+    font-weight: 500;
+}
+
+.dark .filterOption.selected {
     background: rgba(243, 97, 0, 0.1);
     color: #f36100;
 }

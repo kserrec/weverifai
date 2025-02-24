@@ -11,13 +11,7 @@ import { useAuth } from '@/store/auth';
 import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
-
-const AVAILABLE_MODELS = [
-  { modelName: 'all', displayName: 'ALL MODELS' },
-  { modelName: 'gpt-3.5-turbo', displayName: 'GPT-3.5-TURBO' },
-  { modelName: 'gpt-4', displayName: 'GPT-4' },
-  { modelName: 'claude-3', displayName: 'CLAUDE-3' }
-];
+import { AVAILABLE_MODELS } from '@/lib/constants';
 
 export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
@@ -52,19 +46,20 @@ export default function Home(): JSX.Element {
 
       let result;
       const currentLastDoc = isInitial ? undefined : (lastDocRef.current || undefined);
+      const modelFilter = currentModel === 'all' ? undefined : currentModel;
       
       switch (filter) {
         case 'Top':
-          result = await getTopQuestions(10, currentLastDoc);
+          result = await getTopQuestions(10, currentLastDoc, modelFilter);
           break;
         case 'Hot':
-          result = await getHotQuestions(10, currentLastDoc);
+          result = await getHotQuestions(10, currentLastDoc, modelFilter);
           break;
         case 'Spicy':
-          result = await getSpicyQuestions(10, currentLastDoc);
+          result = await getSpicyQuestions(10, currentLastDoc, modelFilter);
           break;
         default:
-          result = await getRecentQuestions(10, currentLastDoc);
+          result = await getRecentQuestions(10, currentLastDoc, modelFilter);
       }
       
       const { questions: newPosts, lastDoc: newLastDoc } = result;
@@ -89,13 +84,13 @@ export default function Home(): JSX.Element {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [user?.email]);
+  }, [user?.email, currentModel]);
 
   // Initial load and filter changes
   useEffect(() => {
     hasMoreRef.current = true;
     void fetchPosts(currentFilter, true);
-  }, [currentFilter, fetchPosts]);
+  }, [currentFilter, currentModel, fetchPosts]);
 
   // Infinite scroll
   useEffect(() => {
