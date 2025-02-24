@@ -759,3 +759,37 @@ input:checked + .slider:before {
 .dark .loadingMore {
   color: #888;
 }
+
+.questionLink {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  display: block;
+  transition: color 0.2s ease;
+}
+
+.questionLink:hover .question {
+  color: #007bff;
+}
+
+.dark .questionLink:hover .question {
+  color: #3ea6ff;
+}
+
+.voteButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #999 !important;
+}
+
+.dark .voteButton.disabled {
+  color: #666 !important;
+}
+
+.voteButton.disabled:hover {
+  color: #999 !important;
+}
+
+.dark .voteButton.disabled:hover {
+  color: #666 !important;
+}

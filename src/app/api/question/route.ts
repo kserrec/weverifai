@@ -20,32 +20,31 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
         // 1. Get request variables
         const { caller, model, question } = await req.json();
 
-        // 2. Ask model question
         try {
+            // 2. Ask model question
             const modelResponse = await askModel(model, question);
             if (!modelResponse) {
                 throw new Error('No response from model');
             }
 
-            // 3. Immediately return the answer for UI update
-            const response = NextResponse.json({ answer: modelResponse });
+            // 3. Generate topics
+            const topics = await getTopicsFromAI(question, modelResponse);
 
-            // 4. Asynchronously handle topic generation and database update
-            getTopicsFromAI(question, modelResponse)
-                .then(topics => {
-                    return addNewQuestionDoc(
-                        modelResponse,
-                        topics,
-                        caller,
-                        model,
-                        question
-                    );
-                })
-                .catch(error => {
-                    console.error('Error in background processing:', error);
-                });
+            // 4. Write to database first
+            const docRef = await addNewQuestionDoc(
+                modelResponse,
+                topics,
+                caller,
+                model,
+                question
+            );
 
-            return response;
+            // 5. Return both the answer and the database ID
+            return NextResponse.json({ 
+                answer: modelResponse,
+                id: docRef.id
+            });
+
         } catch (error) {
             throw error;
         }

@@ -29,17 +29,52 @@ const generateModelOptions = (
 };
 
 const postQuestion = async (caller: string, model: string, question: string) => {
-    return await fetch('/api/question', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            question,
-            model,
-            caller,
-        }),
-    });
+    const tempId = Date.now().toString(); // Generate a temporary ID
+    const tempPost = {
+        id: tempId,
+        question,
+        model,
+        caller,
+        answer: '',
+        createdAt: Date.now(),
+        upvotes: 0,
+        downvotes: 0,
+        topics: []
+    };
+
+    // Store the temporary post in localStorage for the post page to use
+    localStorage.setItem(`pending_post_${tempId}`, JSON.stringify(tempPost));
+
+    // Start the fetch and wait for the response
+    try {
+        const res = await fetch('/api/question', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question,
+                model,
+                caller,
+            }),
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to post question');
+        }
+
+        const data = await res.json();
+        
+        // Once we have the answer, we know the post is in the database
+        tempPost.answer = data.answer;
+        localStorage.setItem(`pending_post_${tempId}`, JSON.stringify(tempPost));
+
+        return { id: tempId, post: tempPost, ready: true };
+    } catch (error) {
+        // If there's an error, we'll still return the ID but mark it as not ready
+        console.error('Error posting question:', error);
+        return { id: tempId, post: tempPost, ready: false };
+    }
 };
 
 const CreatePostPage: React.FC = () => {
@@ -108,12 +143,24 @@ const CreatePostPage: React.FC = () => {
 
         setLoading(true);
         try {
-            const res = await postQuestion(user.username, selectedModel, question);
-            if (res.ok) {
-                router.push('/');
-            } else {
-                setResponse('Failed to post question. Please try again.');
+            const res = await fetch('/api/question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question,
+                    model: selectedModel,
+                    caller: user.username,
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to post question');
             }
+
+            const data = await res.json();
+            router.push(`/post/${data.id}`);
         } catch (error) {
             console.error('Error posting question:', error);
             setResponse('An error occurred. Please try again.');

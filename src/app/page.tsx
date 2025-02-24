@@ -12,6 +12,7 @@ import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import { AVAILABLE_MODELS } from '@/lib/constants';
+import Link from 'next/link';
 
 export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
@@ -150,7 +151,6 @@ export default function Home(): JSX.Element {
 
   const handleVote = async (postId: string, voteType: 'upvote' | 'downvote') => {
     if (!isLoggedIn || !user?.email) {
-      // Could show a login prompt here
       return;
     }
 
@@ -161,8 +161,19 @@ export default function Home(): JSX.Element {
       upvoted: post.upvoters?.includes(user.email) || false,
       downvoted: post.downvoters?.includes(user.email) || false
     };
+
+    // Check for opposite vote in local state
+    const hasOppositeVote = voteType === 'upvote' ? currentState.downvoted : currentState.upvoted;
+    if (hasOppositeVote) {
+      console.log('Vote blocked: Already voted in opposite direction');
+      return;
+    }
     
     const isRemovingVote = currentState[voteType === 'upvote' ? 'upvoted' : 'downvoted'];
+
+    // Keep original states for error recovery
+    const originalVotingStates = { ...votingStates };
+    const originalPosts = [...posts];
     
     // Update the UI optimistically
     const newVotingStates = {
@@ -174,7 +185,7 @@ export default function Home(): JSX.Element {
     };
     setVotingStates(newVotingStates);
 
-    // Optimistically update the vote count in the UI
+    // Update posts state optimistically
     const updatedPosts = posts.map(p => {
       if (p.id === postId) {
         const voteChange = isRemovingVote ? -1 : 1;
@@ -183,7 +194,6 @@ export default function Home(): JSX.Element {
           [voteType === 'upvote' ? 'upvotes' : 'downvotes']: (p[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0) + voteChange
         };
 
-        // Update the voters arrays
         if (voteType === 'upvote') {
           updatedPost.upvoters = isRemovingVote 
             ? p.upvoters?.filter(id => id !== user.email)
@@ -200,8 +210,15 @@ export default function Home(): JSX.Element {
     });
     setPosts(updatedPosts);
 
-    // Update the vote in Firestore without waiting
-    void updateVote(postId, user.email, voteType, !isRemovingVote);
+    try {
+      // Update the vote in Firestore without waiting
+      await updateVote(postId, user.email, voteType, !isRemovingVote);
+    } catch (error) {
+      console.error('Error updating vote:', error);
+      // Revert to original states on error
+      setVotingStates(originalVotingStates);
+      setPosts(originalPosts);
+    }
   };
 
   useEffect(() => {
@@ -312,9 +329,11 @@ export default function Home(): JSX.Element {
               <div className={styles.posts}>
                 {posts.map((post) => (
                   <div key={post.id} className={styles.post}>
-                    <div className={styles.question}>
-                      {post.question}
-                    </div>
+                    <Link href={`/post/${post.id}`} className={styles.questionLink}>
+                      <div className={styles.question}>
+                        {post.question}
+                      </div>
+                    </Link>
                     <div className={styles.answer}>
                       {post.answer}
                     </div>
