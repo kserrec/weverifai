@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import type { JSX } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getQuestionById, updateVote } from "@/services/questionService";
 import type { QuestionResponse } from "@/services/questionService";
 import styles from "../../home.module.css";

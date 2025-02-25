@@ -30,13 +30,9 @@ export const askModel = async (model:string, question:string): Promise<string|nu
             // case 'claude-model':
             //     return await askClaude(question, model);
             default: 
-                throw new ModelError("Invalid model for question", model);
+                throw new Error(`Invalid model for question: ${model}`);
         }
     } catch (error) {
-        throw new ModelError(
-            `Failed to get response from model: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            model,
-            error
-        );
+        throw new Error(`Failed to get response from model ${model}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 };
