@@ -24,6 +24,7 @@ export default function Home(): JSX.Element {
   const [modelFilterOpen, setModelFilterOpen] = useState<boolean>(false);
   const [currentFilter, setCurrentFilter] = useState<string>('New');
   const [currentModel, setCurrentModel] = useState<string>('all');
+  const [expandedAnswers, setExpandedAnswers] = useState<Set<string>>(new Set());
   const lastDocRef = useRef<QueryDocumentSnapshot | null>(null);
   const hasMoreRef = useRef<boolean>(true);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -286,6 +287,18 @@ export default function Home(): JSX.Element {
     setModelFilterOpen(false);
   };
 
+  const toggleAnswer = (postId: string) => {
+    setExpandedAnswers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
       <Header onSidebarToggle={handleSidebarToggle} />
@@ -371,16 +384,16 @@ export default function Home(): JSX.Element {
             ) : posts.length > 0 ? (
               <div className={styles.posts}>
                 {posts.map((post) => (
-                  <div key={post.id} className={styles.post}>
-                    <Link href={`/post/${post.id}`} className={styles.questionLink}>
+                  <div key={post.id} className={styles.post} onClick={() => toggleAnswer(post.id)}>
+                    <Link href={`/post/${post.id}`} className={styles.questionLink} onClick={(e) => e.stopPropagation()}>
                       <div className={styles.question}>
                         {post.question}
                       </div>
                     </Link>
-                    <div className={styles.answer}>
+                    <div className={`${styles.answer} ${expandedAnswers.has(post.id) ? styles.expanded : ''}`}>
                       {post.answer}
                     </div>
-                    <div className={styles.postMeta}>
+                    <div className={styles.postMeta} onClick={(e) => e.stopPropagation()}>
                       <div className={styles.voteButtons}>
                         <button 
                           className={`${styles.voteButton} ${votingStates[post.id]?.upvoted ? styles.upvoted : ''}`}
