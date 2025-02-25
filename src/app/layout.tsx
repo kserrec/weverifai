@@ -15,8 +15,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WeVerifAI",
-  description: "Trust, but VerifAI"
+  title: "askLarge",
+  description: "Trust, but VerifAI",
+  icons: {
+    icon: [
+      { rel: 'icon', url: '/favicon.ico' },
+      { rel: 'icon', url: '/icon.png', type: 'image/png', sizes: '32x32' },
+      { rel: 'apple-touch-icon', url: '/apple-icon.png', sizes: '180x180' }
+    ]
+  }
 };
 
 export const viewport = {
