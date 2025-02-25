@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { JSX } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { getQuestionById, updateVote } from "@/services/questionService";
@@ -24,6 +24,7 @@ export default function PostPage(): JSX.Element {
         upvoted: false,
         downvoted: false
     });
+    const voteInProgress = useRef<boolean>(false);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -82,65 +83,92 @@ export default function PostPage(): JSX.Element {
     }, [id, user?.email]);
 
     const handleVote = async (voteType: 'upvote' | 'downvote') => {
-        if (!isLoggedIn || !user?.email || !post || !isInDatabase) {
-            console.log('Vote blocked:', { isLoggedIn, hasUser: !!user?.email, hasPost: !!post, isInDatabase });
+        if (!isLoggedIn || !user?.email || !post || voteInProgress.current) {
+            console.log('Vote blocked:', { 
+                isLoggedIn, 
+                hasUser: !!user?.email, 
+                hasPost: !!post,
+                voteInProgress: voteInProgress.current 
+            });
             return;
         }
 
-        // Check current local state for opposite vote
-        const hasOppositeVote = voteType === 'upvote' 
-            ? votingState.downvoted
-            : votingState.upvoted;
-
-        if (hasOppositeVote) {
-            console.log('Vote blocked: Already voted in opposite direction');
-            return;
-        }
-
-        // Use local state to determine if removing vote
-        const isRemovingVote = voteType === 'upvote' ? votingState.upvoted : votingState.downvoted;
-
-        // Update UI immediately
-        setVotingState(prevState => ({
-            upvoted: voteType === 'upvote' ? !prevState.upvoted : false,
-            downvoted: voteType === 'downvote' ? !prevState.downvoted : false
-        }));
-
-        // Update post state optimistically
-        const originalPost = post; // Keep a copy for error recovery
-        setPost(prevPost => {
-            if (!prevPost) return null;
-            
-            const updatedPost = {
-                ...prevPost,
-                [voteType === 'upvote' ? 'upvotes' : 'downvotes']: 
-                    (prevPost[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0) + (isRemovingVote ? -1 : 1)
-            };
-
-            if (voteType === 'upvote') {
-                updatedPost.upvoters = isRemovingVote 
-                    ? (prevPost.upvoters || []).filter(id => id !== user.email)
-                    : [...(prevPost.upvoters || []), user.email];
-            } else {
-                updatedPost.downvoters = isRemovingVote
-                    ? (prevPost.downvoters || []).filter(id => id !== user.email)
-                    : [...(prevPost.downvoters || []), user.email];
-            }
-
-            return updatedPost;
-        });
+        // Set vote lock
+        voteInProgress.current = true;
+        
+        // Keep original state for error recovery
+        const originalPost = { ...post };
 
         try {
+            // Check current local state for opposite vote
+            const hasOppositeVote = voteType === 'upvote' 
+                ? votingState.downvoted
+                : votingState.upvoted;
+
+            if (hasOppositeVote) {
+                console.log('Vote blocked: Already voted in opposite direction');
+                return;
+            }
+
+            // Use local state to determine if removing vote
+            const isRemovingVote = voteType === 'upvote' ? votingState.upvoted : votingState.downvoted;
+
+            // Check if removing vote would cause negative count
+            const currentCount = post[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0;
+            if (isRemovingVote && currentCount <= 0) {
+                console.log('Vote blocked: Would cause negative count');
+                return;
+            }
+
+            // Update UI immediately
+            setVotingState(prevState => ({
+                upvoted: voteType === 'upvote' ? !prevState.upvoted : false,
+                downvoted: voteType === 'downvote' ? !prevState.downvoted : false
+            }));
+
+            // Update post state optimistically
+            setPost(prevPost => {
+                if (!prevPost) return null;
+                
+                const updatedPost = {
+                    ...prevPost,
+                    [voteType === 'upvote' ? 'upvotes' : 'downvotes']: 
+                        Math.max(0, (prevPost[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0) + (isRemovingVote ? -1 : 1))
+                };
+
+                if (voteType === 'upvote') {
+                    updatedPost.upvoters = isRemovingVote 
+                        ? (prevPost.upvoters || []).filter(id => id !== user.email)
+                        : [...(prevPost.upvoters || []), user.email];
+                    updatedPost.downvoters = prevPost.downvoters || [];
+                } else {
+                    updatedPost.downvoters = isRemovingVote
+                        ? (prevPost.downvoters || []).filter(id => id !== user.email)
+                        : [...(prevPost.downvoters || []), user.email];
+                    updatedPost.upvoters = prevPost.upvoters || [];
+                }
+
+                return updatedPost;
+            });
+
             // Update database in background
             await updateVote(post.id, user.email, voteType, !isRemovingVote);
 
             // Optionally fetch latest state after successful update
             const updatedPost = await getQuestionById(post.id);
             if (updatedPost) {
-                setPost(updatedPost);
+                // Ensure counts never go negative even if database returns negative
+                const sanitizedPost = {
+                    ...updatedPost,
+                    upvotes: Math.max(0, updatedPost.upvotes || 0),
+                    downvotes: Math.max(0, updatedPost.downvotes || 0),
+                    upvoters: updatedPost.upvoters || [],
+                    downvoters: updatedPost.downvoters || []
+                };
+                setPost(sanitizedPost);
                 setVotingState({
-                    upvoted: updatedPost.upvoters?.includes(user.email) || false,
-                    downvoted: updatedPost.downvoters?.includes(user.email) || false
+                    upvoted: sanitizedPost.upvoters.includes(user.email) || false,
+                    downvoted: sanitizedPost.downvoters.includes(user.email) || false
                 });
             }
         } catch (error) {
@@ -151,6 +179,9 @@ export default function PostPage(): JSX.Element {
                 upvoted: originalPost.upvoters?.includes(user.email) || false,
                 downvoted: originalPost.downvoters?.includes(user.email) || false
             });
+        } finally {
+            // Release vote lock
+            voteInProgress.current = false;
         }
     };
 
