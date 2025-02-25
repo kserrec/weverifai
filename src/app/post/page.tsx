@@ -28,20 +28,6 @@ const generateModelOptions = (
         ));
 };
 
-const postQuestion = async (caller: string, model: string, question: string) => {
-    return await fetch('/api/question', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            question,
-            model,
-            caller,
-        }),
-    });
-};
-
 const CreatePostPage: React.FC = () => {
     const { user, isLoading } = useAuth();
     const router = useRouter();
@@ -108,12 +94,24 @@ const CreatePostPage: React.FC = () => {
 
         setLoading(true);
         try {
-            const res = await postQuestion(user.username, selectedModel, question);
-            if (res.ok) {
-                router.push('/');
-            } else {
-                setResponse('Failed to post question. Please try again.');
+            const res = await fetch('/api/question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question,
+                    model: selectedModel,
+                    caller: user.username,
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to post question');
             }
+
+            const data = await res.json();
+            router.push(`/post/${data.id}`);
         } catch (error) {
             console.error('Error posting question:', error);
             setResponse('An error occurred. Please try again.');

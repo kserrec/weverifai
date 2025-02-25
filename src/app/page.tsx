@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getRecentQuestions, getTopQuestions, getHotQuestions, getSpicyQuestions, updateVote } from "@/services/questionService";
+import { getRecentQuestions, getTopQuestions, getHotQuestions, getSpicyQuestions, updateVote, getQuestionById } from "@/services/questionService";
 import type { JSX } from "react";
 import type { QuestionResponse } from "@/services/questionService";
 import styles from "./home.module.css";
@@ -12,6 +12,7 @@ import Header from "@/components/Header";
 import TopicsSidebar from "@/components/TopicsSidebar";
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import { AVAILABLE_MODELS } from '@/lib/constants';
+import Link from 'next/link';
 
 export default function Home(): JSX.Element {
   const { darkMode } = useDarkMode();
@@ -32,6 +33,7 @@ export default function Home(): JSX.Element {
   const loadingRef = useRef<HTMLDivElement>(null);
   const [votingStates, setVotingStates] = useState<Record<string, { upvoted: boolean; downvoted: boolean }>>({});
   const fetchingRef = useRef<boolean>(false);
+  const votingInProgress = useRef<Set<string>>(new Set());
 
   const fetchPosts = useCallback(async (filter: string, isInitial: boolean = false) => {
     if (fetchingRef.current || (!isInitial && !hasMoreRef.current)) return;
@@ -149,59 +151,117 @@ export default function Home(): JSX.Element {
   };
 
   const handleVote = async (postId: string, voteType: 'upvote' | 'downvote') => {
-    if (!isLoggedIn || !user?.email) {
-      // Could show a login prompt here
+    if (!isLoggedIn || !user?.email || votingInProgress.current.has(postId)) {
+      console.log('Vote blocked:', { 
+        isLoggedIn, 
+        hasUser: !!user?.email, 
+        voteInProgress: votingInProgress.current.has(postId) 
+      });
       return;
     }
 
     const post = posts.find(p => p.id === postId);
     if (!post) return;
 
-    const currentState = votingStates[postId] || { 
-      upvoted: post.upvoters?.includes(user.email) || false,
-      downvoted: post.downvoters?.includes(user.email) || false
-    };
-    
-    const isRemovingVote = currentState[voteType === 'upvote' ? 'upvoted' : 'downvoted'];
-    
-    // Update the UI optimistically
-    const newVotingStates = {
-      ...votingStates,
-      [postId]: {
-        upvoted: voteType === 'upvote' ? !currentState.upvoted : false,
-        downvoted: voteType === 'downvote' ? !currentState.downvoted : false
+    // Add post to voting in progress set
+    votingInProgress.current.add(postId);
+
+    // Keep original states for error recovery
+    const originalVotingStates = { ...votingStates };
+    const originalPosts = posts.map(p => ({ ...p })); // Deep copy
+
+    try {
+      const currentState = votingStates[postId] || { 
+        upvoted: post.upvoters?.includes(user.email) || false,
+        downvoted: post.downvoters?.includes(user.email) || false
+      };
+
+      // Check for opposite vote in local state
+      const hasOppositeVote = voteType === 'upvote' ? currentState.downvoted : currentState.upvoted;
+      if (hasOppositeVote) {
+        console.log('Vote blocked: Already voted in opposite direction');
+        return;
       }
-    };
-    setVotingStates(newVotingStates);
+      
+      const isRemovingVote = currentState[voteType === 'upvote' ? 'upvoted' : 'downvoted'];
 
-    // Optimistically update the vote count in the UI
-    const updatedPosts = posts.map(p => {
-      if (p.id === postId) {
-        const voteChange = isRemovingVote ? -1 : 1;
-        const updatedPost = {
-          ...p,
-          [voteType === 'upvote' ? 'upvotes' : 'downvotes']: (p[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0) + voteChange
-        };
-
-        // Update the voters arrays
-        if (voteType === 'upvote') {
-          updatedPost.upvoters = isRemovingVote 
-            ? p.upvoters?.filter(id => id !== user.email)
-            : [...(p.upvoters || []), user.email];
-        } else {
-          updatedPost.downvoters = isRemovingVote
-            ? p.downvoters?.filter(id => id !== user.email)
-            : [...(p.downvoters || []), user.email];
+      // Check if removing vote would cause negative count
+      const currentCount = post[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0;
+      if (isRemovingVote && currentCount <= 0) {
+        console.log('Vote blocked: Would cause negative count');
+        return;
+      }
+      
+      // Update the UI optimistically
+      const newVotingStates = {
+        ...votingStates,
+        [postId]: {
+          upvoted: voteType === 'upvote' ? !currentState.upvoted : false,
+          downvoted: voteType === 'downvote' ? !currentState.downvoted : false
         }
+      };
+      setVotingStates(newVotingStates);
 
-        return updatedPost;
+      // Update posts state optimistically
+      const updatedPosts = posts.map(p => {
+        if (p.id === postId) {
+          const voteChange = isRemovingVote ? -1 : 1;
+          const updatedPost = {
+            ...p,
+            [voteType === 'upvote' ? 'upvotes' : 'downvotes']: 
+              Math.max(0, (p[voteType === 'upvote' ? 'upvotes' : 'downvotes'] || 0) + voteChange)
+          };
+
+          if (voteType === 'upvote') {
+            updatedPost.upvoters = isRemovingVote 
+              ? (p.upvoters || []).filter(id => id !== user.email)
+              : [...(p.upvoters || []), user.email];
+            updatedPost.downvoters = p.downvoters || [];
+          } else {
+            updatedPost.downvoters = isRemovingVote
+              ? (p.downvoters || []).filter(id => id !== user.email)
+              : [...(p.downvoters || []), user.email];
+            updatedPost.upvoters = p.upvoters || [];
+          }
+
+          return updatedPost;
+        }
+        return { ...p }; // Deep copy other posts
+      });
+      setPosts(updatedPosts);
+
+      // Update the vote in Firestore without waiting
+      await updateVote(postId, user.email, voteType, !isRemovingVote);
+
+      // Optionally fetch fresh post data to ensure consistency
+      const updatedPost = await getQuestionById(postId);
+      if (updatedPost) {
+        // Ensure counts never go negative even if database returns negative
+        const sanitizedPost = {
+          ...updatedPost,
+          upvotes: Math.max(0, updatedPost.upvotes || 0),
+          downvotes: Math.max(0, updatedPost.downvotes || 0),
+          upvoters: updatedPost.upvoters || [],
+          downvoters: updatedPost.downvoters || []
+        };
+        setPosts(posts.map(p => p.id === postId ? sanitizedPost : p));
+        setVotingStates(prev => ({
+          ...prev,
+          [postId]: {
+            upvoted: sanitizedPost.upvoters.includes(user.email) || false,
+            downvoted: sanitizedPost.downvoters.includes(user.email) || false
+          }
+        }));
       }
-      return p;
-    });
-    setPosts(updatedPosts);
-
-    // Update the vote in Firestore without waiting
-    void updateVote(postId, user.email, voteType, !isRemovingVote);
+    } catch (error) {
+      console.error('Error updating vote:', error);
+      // Revert to original states on error
+      setVotingStates(originalVotingStates);
+      setPosts(originalPosts);
+    } finally {
+      // Remove post from voting in progress set
+      votingInProgress.current.delete(postId);
+    }
   };
 
   useEffect(() => {
@@ -312,9 +372,11 @@ export default function Home(): JSX.Element {
               <div className={styles.posts}>
                 {posts.map((post) => (
                   <div key={post.id} className={styles.post}>
-                    <div className={styles.question}>
-                      {post.question}
-                    </div>
+                    <Link href={`/post/${post.id}`} className={styles.questionLink}>
+                      <div className={styles.question}>
+                        {post.question}
+                      </div>
+                    </Link>
                     <div className={styles.answer}>
                       {post.answer}
                     </div>

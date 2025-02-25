@@ -389,18 +389,22 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 768px) {
-    .pageContent {
-        display: block;
-        padding: 15px;
-        width: 100%;
-        min-height: calc(100vh - 111px);
+    .container {
+        align-items: stretch;
+        text-align: left;
     }
 
+    .pageContent {
+        display: block;
+        padding-top: 15px;
+    }
+    
     .mainContent {
-        padding: 0;
+        padding: 0 1rem 2rem 1rem;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+        text-align: left;
     }
 
     .createPostBox {
@@ -437,6 +441,7 @@ input:checked + .slider:before {
     padding: 0;
     position: relative;
     margin-bottom: 1rem;
+    text-align: left;
 }
 
 .filterButton {
@@ -452,6 +457,7 @@ input:checked + .slider:before {
     cursor: pointer;
     transition: all 0.2s ease;
     justify-content: space-between;
+    text-align: left;
 }
 
 .filterButton svg {

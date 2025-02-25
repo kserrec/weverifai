@@ -251,12 +251,12 @@ export const addNewQuestionDoc = async (
     caller: string,
     model: string,
     question: string
-): Promise<void> => {
+) => {
     // First, get or create topic references
     const topicRefs = await getOrCreateTopics(topics);
 
     // Add the question document with topic references
-    await addDoc(collection(db, 'questions'), {
+    const docRef = await addDoc(collection(db, 'questions'), {
         answer,
         topicRefs,
         caller,
@@ -270,6 +270,8 @@ export const addNewQuestionDoc = async (
 
     // Increment question count for each topic
     await incrementTopicQuestionCounts(topicRefs);
+
+    return docRef;
 };
 
 // Gets all questions from the 'questions' collection
@@ -344,4 +346,35 @@ export const updateVote = async (
     }
 
     await updateDoc(questionRef, updates);
+};
+
+export const getQuestionById = async (id: string): Promise<QuestionResponse | null> => {
+    try {
+        const docRef = doc(db, 'questions', id);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+            return null;
+        }
+
+        const questionData = {
+            id: docSnap.id,
+            ...docSnap.data()
+        } as QuestionDoc & { upvoters?: string[], downvoters?: string[] };
+
+        // Fetch topic names
+        const topicDocs = await Promise.all(
+            questionData.topicRefs.map(ref => getDoc(ref))
+        );
+        
+        const topics = topicDocs.map(doc => doc.data()?.name || 'Unknown Topic');
+        
+        return {
+            ...questionData,
+            topics,
+        };
+    } catch (error) {
+        console.error('Error fetching question:', error);
+        return null;
+    }
 };
