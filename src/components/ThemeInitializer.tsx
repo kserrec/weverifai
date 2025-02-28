@@ -16,7 +16,7 @@ export function ThemeInitializer(): null {
   // Handle initial setup
   useEffect(() => {
     // Rehydrate the store with persisted data
-    useDarkMode.persist.rehydrate();
+    void useDarkMode.persist.rehydrate();
     
     // Enable smooth transitions after initial render
     document.documentElement.classList.add('theme-initialized');
