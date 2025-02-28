@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { JSX } from "react";
 import { AuthStateListener } from '@/components/AuthStateListener'
+import { ThemeInitializer } from '@/components/ThemeInitializer'
+import { ClientOnly } from '@/components/ClientOnly'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -42,11 +44,33 @@ export default function RootLayout({
 }>): JSX.Element {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <head>
+        <style>{`
+          :root {
+            color-scheme: light;
+          }
+          :root.dark {
+            color-scheme: dark;
+          }
+          /* Disable transitions by default */
+          * {
+            transition: none !important;
+          }
+          /* Enable transitions after initialization */
+          html.theme-initialized * {
+            transition: background-color 0.3s ease,
+                      color 0.3s ease,
+                      border-color 0.3s ease,
+                      box-shadow 0.3s ease !important;
+          }
+        `}</style>
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ClientOnly>
+          <ThemeInitializer />
+          {children}
+        </ClientOnly>
         <AuthStateListener />
-        {children}
       </body>
     </html>
   );
