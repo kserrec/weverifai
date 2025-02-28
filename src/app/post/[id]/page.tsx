@@ -20,6 +20,7 @@ export default function PostPage(): JSX.Element {
     const [loading, setLoading] = useState<boolean>(true);
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [isInDatabase, setIsInDatabase] = useState<boolean>(false);
+    const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [votingState, setVotingState] = useState<{ upvoted: boolean; downvoted: boolean }>({
         upvoted: false,
         downvoted: false
@@ -189,6 +190,10 @@ export default function PostPage(): JSX.Element {
         setSidebarOpen(!sidebarOpen);
     };
 
+    const toggleExpanded = () => {
+        setIsExpanded(!isExpanded);
+    };
+
     useEffect(() => {
         document.body.classList.toggle(styles.dark, darkMode);
     }, [darkMode]);
@@ -235,10 +240,13 @@ export default function PostPage(): JSX.Element {
                                 <div className={styles.question}>
                                     {post.question}
                                 </div>
-                                <div className={styles.answer}>
+                                <div 
+                                    className={`${styles.answer} ${isExpanded ? styles.expanded : ''}`}
+                                    onClick={toggleExpanded}
+                                >
                                     {post.answer}
                                 </div>
-                                <div className={styles.postMeta}>
+                                <div className={styles.postMeta} onClick={(e) => e.stopPropagation()}>
                                     <div className={styles.voteButtons}>
                                         <button 
                                             className={`${styles.voteButton} ${votingState.upvoted ? styles.upvoted : ''} ${!isInDatabase ? styles.disabled : ''}`}
