@@ -54,20 +54,7 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
 
   const handleCreatePostClick = () => {
     if (isLoading) return;
-
-    // Start navigation
     router.push('/post');
-
-    // Set up safety net for navigation
-    const navigationTimeout = setTimeout(() => {
-      if (window.location.pathname !== '/post') {
-        // If we're not on the post page after timeout, force navigate
-        window.location.href = '/post';
-      }
-    }, 1000); // Increased timeout to give router.push more time
-
-    // Clean up timeout if component unmounts
-    return () => clearTimeout(navigationTimeout);
   };
 
   return (
@@ -83,7 +70,8 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
       )}
       
       <Link href="/" className={styles.logo}>
-        <span className={styles.accent2}>ask</span><span className={styles.accent}>Large</span>
+        <span className={styles.accent2}>ask</span>
+        <span className={styles.accent}>Large</span>
       </Link>
 
       <div className={styles.navright}>
@@ -99,9 +87,11 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
               <span className={styles.slider}></span>
             </label>
           </div>
+          
           {!isLoginPage && (
             <button className={styles.createPostBtn} onClick={handleCreatePostClick}>
-              <FaPlus /> <span className={styles.createPostText}>Ask AI</span>
+              <FaPlus /> 
+              <span className={styles.createPostText}>Ask AI</span>
               <span className={styles.createPostTextMobile}>Ask</span>
             </button>
           )}
@@ -110,7 +100,10 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
         {!isLoginPage && (
           <>
             <div className={styles.navLinks}>
-              <button type="button" className={styles.signupBtn} onClick={handleLoginClick}>
+              <button 
+                className={styles.signupBtn}
+                onClick={handleLoginClick}
+              >
                 {isLoggedIn ? 'Log Out' : 'Log In'}
               </button>
             </div>
@@ -123,21 +116,24 @@ export default function Header({ onSidebarToggle }: HeaderProps): JSX.Element {
             >
               <FaBars />
             </button>
+
+            {dropdownOpen && (
+              <div 
+                ref={dropdownRef}
+                className={styles.dropdownMenu}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button 
+                  className={styles.dropdownItem}
+                  onClick={handleLoginClick}
+                >
+                  {isLoggedIn ? 'Log Out' : 'Log In'}
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
-
-      {dropdownOpen && !isLoginPage && (
-        <div 
-          ref={dropdownRef}
-          className={styles.dropdownMenu}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button type="button" className={styles.dropdownItem} onClick={handleLoginClick}>
-            {isLoggedIn ? 'Log Out' : 'Log In'}
-          </button>
-        </div>
-      )}
     </header>
   );
 } 

@@ -146,14 +146,14 @@ input:checked + .slider:before {
 
 .pageContent {
     display: flex;
-    padding-top: 61px;
+    padding-top: 45px;
     width: 100%;
     justify-content: center;
 }
 
 .mainContent {
     flex: 1;
-    padding: 0 1rem;
+    padding: 1rem;
     max-width: 800px;
     width: 100%;
 }
@@ -396,11 +396,11 @@ input:checked + .slider:before {
 
     .pageContent {
         display: block;
-        padding-top: 15px;
+        padding-top: 45px;
     }
     
     .mainContent {
-        padding: 0 1rem 2rem 1rem;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
         align-items: flex-start;

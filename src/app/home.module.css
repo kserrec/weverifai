@@ -149,13 +149,13 @@ input:checked + .slider:before {
 
 .pageContent {
   display: flex;
-  padding-top: 61px;
+  padding-top: 45px;
   min-height: calc(100vh - 111px);
 }
 
 .mainContent {
   flex: 1;
-  padding: 0 0 2rem 1rem;
+  padding: 1rem;
 }
 
 .forum {
@@ -588,11 +588,11 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
   .pageContent {
     display: block;
-    padding-top: 15px;
+    padding-top: 45px;
   }
   
   .mainContent {
-    padding: 0 1rem 2rem 1rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
